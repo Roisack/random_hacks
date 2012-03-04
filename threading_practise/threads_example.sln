@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "threads_example", "threads_example.vcproj", "{92FB3D58-64CD-498C-A146-C36E16030E48}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{92FB3D58-64CD-498C-A146-C36E16030E48}.Debug|Win32.ActiveCfg = Debug|Win32
+		{92FB3D58-64CD-498C-A146-C36E16030E48}.Debug|Win32.Build.0 = Debug|Win32
+		{92FB3D58-64CD-498C-A146-C36E16030E48}.Release|Win32.ActiveCfg = Release|Win32
+		{92FB3D58-64CD-498C-A146-C36E16030E48}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

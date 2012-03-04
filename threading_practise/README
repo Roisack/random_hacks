@@ -1,0 +1,2 @@
+This is a small practise I made in relation to learning some multithreading. I was mostly interested in using threads for managing a set of data together, so this program handles a 2D array with the number of threads you specify. It was quite fun. Can't wait to apply this for the Perlin noise in world_generator
+
