@@ -20,6 +20,8 @@ convertToGrayscale() is one of them.
 #include "manager.hpp"
 
 #include <boost/thread.hpp> // Sticking with boost threads since Bill's compiler doesn't have proper C++11 support yet
+boost::mutex mutex_lock;
+int threads_ready = 0;
 
 Sprite::Sprite()
 {
@@ -216,26 +218,10 @@ void Sprite::setAllPixels(SDL_Surface* pSurface, SDL_Color col)
     }
 
     SDL_UnlockSurface(spriteSurface);
-    GLuint target = GL_TEXTURE_2D;
-    id = 0;
-    glGenTextures(1, &id);
-    assert(id);
-    glBindTexture(GL_TEXTURE_2D, id);
-
-    glTexImage2D(target,
-        0,
-        format,
-        spriteSurface->w,
-        spriteSurface->h,
-        0,
-        format,
-        GL_UNSIGNED_BYTE,
-        spriteSurface->pixels);
-    
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    regenerateTexture();
 }
 
+// Builds a new OpenGL texture2D from the SDL_Surface->pixels
 void Sprite::regenerateTexture()
 {
     GLuint target = GL_TEXTURE_2D;
@@ -284,22 +270,38 @@ float** Sprite::generateBaseNoise()
     return baseNoise;
 }
 
-float** Sprite::generateSmoothNoise(float** baseNoise, int octave)
+void appendFinishedTexture(float*** container, int index, float** texture)
 {
-    int width = w;
-    int height = h;
-    
-    float** smoothNoise = tbox.giveFloatArray2D(width, height);
-    
+    mutex_lock.lock();
+    container[index] = texture;
+    threads_ready++;
+    fprintf(stderr, "Appending finished texture at octave %d\n", index);
+    mutex_lock.unlock();
+}
+
+void reportReady()
+{
+    mutex_lock.lock();
+    fprintf(stderr, "Thread reporting ready: %d\n", threads_ready);
+    threads_ready++;
+    fprintf(stderr, "New value: %d\n", threads_ready);
+    mutex_lock.unlock();
+}
+
+// Sets elements from start to stop to some value for array arr
+// The last parameter is a pointer to the function used for doing the calculation
+void calculateSmoothNoiseElements(float** arr, float** baseNoise, int start_x, int stop_x, int start_y, int stop_y, int octave, int width, int height)
+{
     int samplePeriod = 1 << octave;
     float sampleFrequency = 1.0f / float(samplePeriod);
-    for (int i = 0; i < width; i++)
+
+    for (int i = start_x; i < stop_x; i++)
     {
         int sample_i0 = (i / samplePeriod) * samplePeriod;
         int sample_i1 = (sample_i0 + samplePeriod) % width;
         float horizontal_blend = (i - sample_i0) * sampleFrequency;
 
-        for (int j = 0; j < height; j++)
+        for (int j = start_y; j < stop_y; j++)
         {
             int sample_j0 = (j / samplePeriod) * samplePeriod;
             int sample_j1 = (sample_j0 + samplePeriod) % height;
@@ -307,11 +309,44 @@ float** Sprite::generateSmoothNoise(float** baseNoise, int octave)
 
             float top = Interpolate(baseNoise[sample_i0][sample_j0], baseNoise[sample_i1][sample_j0], horizontal_blend);
             float bottom = Interpolate(baseNoise[sample_i0][sample_j1], baseNoise[sample_i1][sample_j1], horizontal_blend);
-            smoothNoise[i][j] = Interpolate(top, bottom, vertical_blend);
+            arr[i][j] = Interpolate(top, bottom, vertical_blend);
         }
     }
+   reportReady();
+}
 
-    return smoothNoise;
+void Sprite::generateSmoothNoise(float** baseNoise, int octave, float*** container, int width, int height)
+{
+    float** smoothNoise = tbox.giveFloatArray2D(width, height);
+
+    // The computation for making the smooth noise texture is multithreaded
+    // Each thread will handle a slice of the texture from some x1 to x2, and y values from 0 to the end of the array, h
+    int number_of_threads = 6;
+    int work_per_thread = floor(float(w) / float(number_of_threads));
+    std::vector<boost::thread*> threadContainer;
+    threads_ready = 0;
+
+    for (int i = 0; i < number_of_threads; i++)
+    {
+        boost::thread noiseGenerator(calculateSmoothNoiseElements, smoothNoise, baseNoise, i*work_per_thread, (i+1)*work_per_thread, 0, h, octave, w, h);
+        boost::thread* threadPtr = &noiseGenerator;
+        threadContainer.push_back(threadPtr);
+    }
+
+    fprintf(stderr, "Waiting for threads to finish at octave %d\n", octave);
+
+    while (threads_ready < number_of_threads)
+    {
+    }
+
+    fprintf(stderr, "Joining threads for octave %d\n", octave);
+    std::vector<boost::thread*>::iterator iter;
+    for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
+    {
+        (*iter)->join();
+    }
+
+    appendFinishedTexture(container, octave, smoothNoise);
 }
 
 SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
@@ -326,10 +361,10 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
  
     // Generate instances of smooth noise, based on the octave
     // They are slices in our 3D "cube". Voxels of sort
-    // TODO: Use threads here
+
     for (int i = 0; i < octaveCount; i++)
     {
-        smoothNoises[i] = generateSmoothNoise(baseNoise, i);
+        generateSmoothNoise(baseNoise, i, smoothNoises, width, height);
     }
 
     float** perlinNoise = tbox.giveFloatArray2D(width, height);
@@ -400,7 +435,6 @@ SDL_Color Sprite::getPixel(SDL_Surface *pSurface, int x, int y)
 
 void Sprite::convertToGreyScale()
 {
-    GLuint target = GL_TEXTURE_2D;
     SDL_LockSurface(spriteSurface);
     SDL_Color colorBW;
     
@@ -410,21 +444,8 @@ void Sprite::convertToGreyScale()
             setPixel(spriteSurface, i, j, colorBW);
         }
     }
-    
     SDL_UnlockSurface(spriteSurface);
-    
-    glTexImage2D(target,
-        0,
-        format,
-        spriteSurface->w,
-        spriteSurface->h,
-        0,
-        format,
-        GL_UNSIGNED_BYTE,
-        spriteSurface->pixels);
-    
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    regenerateTexture();
 }
 
 void Sprite::bind(int unit)

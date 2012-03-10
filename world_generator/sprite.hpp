@@ -54,7 +54,7 @@ public:
     void setSpriteSurface(SDL_Surface* surf) { spriteSurface = surf; }
     SDL_Surface* getSpriteSurface() { return spriteSurface; }
     float** generateBaseNoise();
-    float** generateSmoothNoise(float** baseNoise, int octave);
+    void generateSmoothNoise(float** baseNoise, int octave, float*** container, int width, int height);
     SDL_Surface* generatePerlinNoise(float** baseNoise, int octaveCount);
     void createClouds();
     void regenerateTexture();
