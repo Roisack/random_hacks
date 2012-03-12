@@ -28,7 +28,8 @@ bool RoomManager::init()
     roomVector.push_back(introRoom);
    
     boost::shared_ptr<Room> room1Ptr(new Room("World room", "", 100, 1));
-    boost::shared_ptr<Sprite> world(new Sprite(std::string("data/2D/stars_1024x1024.png")));
+    std::string spritePath = "data/2D/stars_1024x1024.png";
+    boost::shared_ptr<Sprite> world(new Sprite(spritePath));
     room1Ptr->addSprite("world", world);
     arenaRoom = room1Ptr;
     roomVector.push_back(room1Ptr);
