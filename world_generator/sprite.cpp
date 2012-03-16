@@ -207,6 +207,16 @@ void Sprite::setPixel(SDL_Surface *pSurface, int x, int y, SDL_Color color)
     memcpy(pPosition, &col, pSurface->format->BytesPerPixel);
 }
 
+// Sets one pixel of a SDL_Surface to desired colour
+void setPixelOffClass(SDL_Surface *pSurface, int x, int y, SDL_Color color)
+{
+    Uint32 col = SDL_MapRGB(pSurface->format, color.r, color.g, color.b);
+    char* pPosition = (char*) pSurface->pixels;
+    pPosition += (pSurface->pitch * y);
+    pPosition += (pSurface->format->BytesPerPixel * x);
+    memcpy(pPosition, &col, pSurface->format->BytesPerPixel);
+}
+
 // Set all pixels of a surface to one color
 void Sprite::setAllPixels(SDL_Surface* pSurface, SDL_Color col)
 {
@@ -246,7 +256,7 @@ void Sprite::regenerateTexture()
 
 float Interpolate(float x0, float x1, float alpha)
 {
-   float out = x0 * (1 - alpha) + alpha * x1;
+   float out = x0 * (1.0 - alpha) + alpha * x1;
    return out;
 }
 
@@ -282,9 +292,9 @@ void appendFinishedTexture(float*** container, int index, float** texture)
 void reportReady()
 {
     mutex_lock.lock();
-    fprintf(stderr, "Thread reporting ready: %d\n", threads_ready);
+    fprintf(stderr, "Thread reporting ready: %d", threads_ready);
     threads_ready++;
-    fprintf(stderr, "New value: %d\n", threads_ready);
+    fprintf(stderr, " - New value: %d\n", threads_ready);
     mutex_lock.unlock();
 }
 
@@ -312,7 +322,7 @@ void calculateSmoothNoiseElements(float** arr, float** baseNoise, int start_x, i
             arr[i][j] = Interpolate(top, bottom, vertical_blend);
         }
     }
-   reportReady();
+    reportReady();
 }
 
 void Sprite::generateSmoothNoise(float** baseNoise, int octave, float*** container, int width, int height)
@@ -349,6 +359,24 @@ void Sprite::generateSmoothNoise(float** baseNoise, int octave, float*** contain
     appendFinishedTexture(container, octave, smoothNoise);
 }
 
+void mergeNoises(float amplitude, int octave, float*** smoothNoises, float** perlinNoise, 
+                 SDL_Surface* out, int start_x, int stop_x, int start_y, int stop_y)
+{
+    SDL_Color temp;
+    for (int i = start_x; i < stop_x; i++)
+    {
+        for (int j = start_y; j < stop_y; j++)
+        {
+            perlinNoise[i][j] += smoothNoises[octave][i][j] * amplitude;
+            temp.r = perlinNoise[i][j]*255;
+            temp.g = temp.r;
+            temp.b = temp.r;
+            setPixelOffClass(out, i, j, temp);
+        }
+    }
+    reportReady();
+}
+
 SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
 {
     int width = w;
@@ -375,22 +403,37 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
     SDL_Color temp;
     SDL_Surface* out = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0, 0, 0, 0);
 
+    int number_of_threads = 6;
+    int work_per_thread = floor(float(w) / float(number_of_threads));
+    std::vector<boost::thread*> threadContainer;
+    threads_ready = 0;
+
     // Blend all the slices of the noise together into one 2D slice
+    // This is multithreaded too. Each thread handles texture slices from some x1 to some x2
     for (int octave = octaveCount - 1; octave >= 0; octave--)
     {
         amplitude *= persistence;
         totalAmplitude += amplitude;
+        threads_ready = 0;
 
-        for (int i = 0; i < width; i++)
+        for (int i = 0; i < number_of_threads; i++)
         {
-            for (int j = 0; j < height; j++)
-            {
-                perlinNoise[i][j] += smoothNoises[octave][i][j] * amplitude;
-                temp.r = perlinNoise[i][j]*255;
-                temp.g = temp.r;
-                temp.b = temp.r;
-                setPixel(out, i, j, temp);
-            }
+            boost::thread noiseMerger(mergeNoises, amplitude, octave, smoothNoises, perlinNoise, out, i*work_per_thread, (i+1)*work_per_thread, 0, h);
+            boost::thread* threadPtr = &noiseMerger;
+            threadContainer.push_back(threadPtr);
+        }
+
+        fprintf(stderr, "Waiting for threads to finish at octave %d\n", octave);
+
+        while (threads_ready < number_of_threads)
+        {
+        }
+
+        fprintf(stderr, "Joining threads for octave %d\n", octave);
+        std::vector<boost::thread*>::iterator iter;
+        for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
+        {
+            (*iter)->join();
         }
     }
 /*
