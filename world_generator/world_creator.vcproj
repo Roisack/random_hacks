@@ -184,6 +184,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\object3d.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\objLoader.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\opengl.cpp"
 				>
 			</File>
@@ -219,6 +227,14 @@
 			</File>
 			<File
 				RelativePath=".\manager.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\object3d.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\objLoader.hpp"
 				>
 			</File>
 			<File
