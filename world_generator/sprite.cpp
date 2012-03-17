@@ -239,6 +239,7 @@ void Sprite::regenerateTexture()
     glGenTextures(1, &id);
     assert(id);
     glBindTexture(GL_TEXTURE_2D, id);
+    format = checkGeneric(spriteSurface);
 
     glTexImage2D(target,
         0,
@@ -331,7 +332,7 @@ void Sprite::generateSmoothNoise(float** baseNoise, int octave, float*** contain
 
     // The computation for making the smooth noise texture is multithreaded
     // Each thread will handle a slice of the texture from some x1 to x2, and y values from 0 to the end of the array, h
-    int number_of_threads = 6;
+    int number_of_threads = 8;
     int work_per_thread = floor(float(w) / float(number_of_threads));
     std::vector<boost::thread*> threadContainer;
     threads_ready = 0;
@@ -385,7 +386,7 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
     // 3 dimensional container for the 2D slices of noise
     float*** smoothNoises = tbox.giveFloatArray3D(octaveCount, w, h);
 
-    float persistence = 1.0;
+    float persistence = 1.00;
  
     // Generate instances of smooth noise, based on the octave
     // They are slices in our 3D "cube". Voxels of sort
@@ -397,13 +398,13 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
 
     float** perlinNoise = tbox.giveFloatArray2D(width, height);
     tbox.clearFloatArray2D(perlinNoise, width, height);
-    float amplitude = 1.0f;
+    float amplitude = 1.5f;
     float totalAmplitude = 0.0f;
 
     SDL_Color temp;
     SDL_Surface* out = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0, 0, 0, 0);
 
-    int number_of_threads = 6;
+    int number_of_threads = 8;
     int work_per_thread = floor(float(w) / float(number_of_threads));
     std::vector<boost::thread*> threadContainer;
     threads_ready = 0;
@@ -436,7 +437,8 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
             (*iter)->join();
         }
     }
-/*
+
+    /*
     //normalisation
     for (int i = 0; i < width; i++)
     {
@@ -446,6 +448,7 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
         }
     }
     */
+    
     return out;
 }
 
@@ -459,7 +462,7 @@ void Sprite::createClouds()
     //    Eventually I hope to do this on a fragment shader
     convertToGreyScale();
     float** base = generateBaseNoise();
-    spriteSurface = generatePerlinNoise(base, 15);
+    spriteSurface = generatePerlinNoise(base, 10);
     regenerateTexture();
 }
 
