@@ -231,6 +231,31 @@ void Sprite::setAllPixels(SDL_Surface* pSurface, SDL_Color col)
     regenerateTexture();
 }
 
+// Returns a SDL_Color of a specific pixel in a SDL_Surface
+SDL_Color Sprite::getPixel(SDL_Surface *pSurface, int x, int y)
+{
+    SDL_Color color;
+    Uint32 col = 0;
+    char* pPosition = (char*) pSurface->pixels;
+    pPosition += (pSurface->pitch * y);
+    pPosition += (pSurface->format->BytesPerPixel * x);
+    memcpy(&col, pPosition, pSurface->format->BytesPerPixel);
+    SDL_GetRGB(col, pSurface->format, &color.r, &color.g, &color.b);
+    return color;
+}
+
+SDL_Color getPixelOffClass(SDL_Surface *pSurface, int x, int y)
+{
+    SDL_Color color;
+    Uint32 col = 0;
+    char* pPosition = (char*) pSurface->pixels;
+    pPosition += (pSurface->pitch * y);
+    pPosition += (pSurface->format->BytesPerPixel * x);
+    memcpy(&col, pPosition, pSurface->format->BytesPerPixel);
+    SDL_GetRGB(col, pSurface->format, &color.r, &color.g, &color.b);
+    return color;
+}
+
 // Builds a new OpenGL texture2D from the SDL_Surface->pixels
 void Sprite::regenerateTexture()
 {
@@ -386,7 +411,7 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
     // 3 dimensional container for the 2D slices of noise
     float*** smoothNoises = tbox.giveFloatArray3D(octaveCount, w, h);
 
-    float persistence = 1.00;
+    float persistence = 1.1;
  
     // Generate instances of smooth noise, based on the octave
     // They are slices in our 3D "cube". Voxels of sort
@@ -398,7 +423,7 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
 
     float** perlinNoise = tbox.giveFloatArray2D(width, height);
     tbox.clearFloatArray2D(perlinNoise, width, height);
-    float amplitude = 1.5f;
+    float amplitude = 1.25f;
     float totalAmplitude = 0.0f;
 
     SDL_Color temp;
@@ -448,8 +473,44 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
         }
     }
     */
+
+    // Free some memory
+    tbox.deleteFloatArray3D(smoothNoises, octaveCount, width);
     
     return out;
+}
+
+// All surfaces should be the same size
+void mergeSurfaces(std::vector<SDL_Surface*> surfaceVector, SDL_Surface* out, int start_x, int stop_x, int start_y, int stop_y)
+{
+    int numberOfSurfaces = surfaceVector.size();
+
+    std::vector<SDL_Surface*>::iterator iter;
+    iter = surfaceVector.begin();
+    int sizeX = (*iter)->w;
+    int sizeY = (*iter)->h;
+
+    for (int i = start_x; i < stop_x; i++)
+    {
+        for (int j = start_y; j < stop_y; j++)
+        {
+            SDL_Color average;
+            float sum1 = 0.0f;
+            float sum2 = 0.0f;
+            float sum3 = 0.0f;
+            for (iter = surfaceVector.begin(); iter != surfaceVector.end(); iter++)
+            {
+                sum1 += getPixelOffClass((*iter), i, j).r;
+                sum2 += getPixelOffClass((*iter), i, j).g;
+                sum3 += getPixelOffClass((*iter), i, j).b;
+            }
+            average.r = sum1 / numberOfSurfaces;
+            average.g = sum2 / numberOfSurfaces;
+            average.b = sum3 / numberOfSurfaces;
+            setPixelOffClass(out, i, j, average);
+        }
+    }
+    reportReady();
 }
 
 // Creates some perlin noise
@@ -462,21 +523,40 @@ void Sprite::createClouds()
     //    Eventually I hope to do this on a fragment shader
     convertToGreyScale();
     float** base = generateBaseNoise();
-    spriteSurface = generatePerlinNoise(base, 10);
-    regenerateTexture();
-}
+    std::vector<SDL_Surface*> surfaceVector;
+    SDL_Surface* s1 = generatePerlinNoise(base, 10);
+    spriteSurface = s1;
+    /*
+    SDL_Surface* s2 = generatePerlinNoise(base, 10);
+    surfaceVector.push_back(s1);
+    surfaceVector.push_back(s2);
 
-// Returns a SDL_Color of a specific pixel in a SDL_Surface
-SDL_Color Sprite::getPixel(SDL_Surface *pSurface, int x, int y)
-{
-    SDL_Color color;
-    Uint32 col = 0;
-    char* pPosition = (char*) pSurface->pixels;
-    pPosition += (pSurface->pitch * y);
-    pPosition += (pSurface->format->BytesPerPixel * x);
-    memcpy(&col, pPosition, pSurface->format->BytesPerPixel);
-    SDL_GetRGB(col, pSurface->format, &color.r, &color.g, &color.b);
-    return color;
+    int number_of_threads = 8;
+    int work_per_thread = floor(float(w) / float(number_of_threads));
+    std::vector<boost::thread*> threadContainer;
+    threads_ready = 0;
+
+    for (int i = 0; i < number_of_threads; i++)
+    {
+        boost::thread surfaceMerger(mergeSurfaces, surfaceVector, spriteSurface, i*work_per_thread, (i+1)*work_per_thread, 0, h);
+        boost::thread* threadPtr = &surfaceMerger;
+        threadContainer.push_back(threadPtr);
+    }
+
+    fprintf(stderr, "Waiting for threads to finish combining surfaces\n");
+
+    while (threads_ready < number_of_threads)
+    {
+    }
+
+    fprintf(stderr, "Joining threads\n");
+    std::vector<boost::thread*>::iterator iter;
+    for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
+    {
+        (*iter)->join();
+    }
+    */
+    regenerateTexture();
 }
 
 void Sprite::convertToGreyScale()

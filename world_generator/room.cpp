@@ -54,6 +54,9 @@ void Room::operate()
 
         for (spriteIterator = spriteMap.begin(); spriteIterator != spriteMap.end(); spriteIterator++)
             (*spriteIterator).second->render();
+
+        for (modelIterator = modelMap.begin(); modelIterator != modelMap.end(); modelIterator++)
+            (*modelIterator).second->render();
 	} else if (roomType == 3) // Cinematics
     {
         renderer.moveCamera(0, 0, renderer.getNativeHeight());
@@ -125,4 +128,21 @@ void Room::removeSprite(std::string name)
 void Room::iterateSprites()
 {
     spriteIterator++;
+}
+
+void Room::addModel(std::string name, boost::shared_ptr<Object3D> m)
+{
+    modelMap[name] = m;
+}
+
+void Room::removeModel(std::string name)
+{
+    modelIterator = modelMap.find(name.c_str());
+    if (modelIterator != modelMap.end())
+    {
+        modelMap.erase(modelIterator);
+    } else
+    {
+        fprintf(stderr, "No model found to delete! Sprite: %s, Room: %d", name.c_str(), roomNumber);
+    }
 }

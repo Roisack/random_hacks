@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 #include "vector3.hpp"
+#include "sprite.hpp"
+#include <boost/shared_ptr.hpp>
 
 class Object3D
 {
@@ -23,12 +25,16 @@ private:
     
 public:
     Object3D(std::string path);
+    Object3D(int n);
     ~Object3D();
     void loadModel(std::string path);
+    void generatePlaneWithVerticesPerRow(int n);
     void render();
     
+    void printStats();
     void setLocation(Vector3 in);
     void setRotation(float in);
+    void applyHeightMap(boost::shared_ptr<Sprite> spritePtr);
 };
 
 #endif

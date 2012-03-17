@@ -46,6 +46,7 @@ public:
     float*** giveFloatArray3D(int sizeX, int sizeY, int sizeZ);
     void clearFloatArray2D(float** arr, int sizeX, int sizeY);
     void clearFloatArray3D(float*** arr, int sizeX, int sizeY, int sizeZ);
+    void deleteFloatArray3D(float*** arr, int sizeX, int sizeY);
 };
 
 extern Toolbox tbox;

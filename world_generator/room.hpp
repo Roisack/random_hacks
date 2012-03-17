@@ -3,9 +3,11 @@
 
 #include <boost/shared_ptr.hpp>
 #include "sprite.hpp"
+#include "object3d.hpp"
 #include <map>
 
 typedef std::map<std::string, boost::shared_ptr<Sprite> > spriteContainer;
+typedef std::map<std::string, boost::shared_ptr<Object3D> > modelContainer;
 
 class Room
 {
@@ -16,6 +18,9 @@ private:
 
     spriteContainer spriteMap;
     spriteContainer::iterator spriteIterator;
+
+    modelContainer modelMap;
+    modelContainer::iterator modelIterator;
 
     double roomStartTime;
     bool firstRun;
@@ -34,8 +39,12 @@ public:
     void removeSprite(std::string name);
     void iterateSprites();
 
+    void addModel(std::string name, boost::shared_ptr<Object3D> m);
+    void removeModel(std::string name);
+
     void createWorld();
     boost::shared_ptr<Sprite> findSprite(std::string f);
+    boost::shared_ptr<Object3D> findModel(std::string f);
 
     std::string getName() { return name; }
     int getType() { return roomType; }

@@ -2,6 +2,7 @@
 #define _SPRITE_HPP_
 
 #include <string>
+#include <vector>
 #ifdef WIN32
 #include <SDL.h>
 #include <SDL_image.h>
