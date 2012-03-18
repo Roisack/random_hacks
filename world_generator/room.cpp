@@ -23,7 +23,6 @@ boost::shared_ptr<Sprite> Room::findSprite(std::string toSearch)
     {
         if (((*spriteIterator).first.compare(toSearch) == 0))
         {
-            fprintf(stderr, "Found\n");
             return (*spriteIterator).second;
         }
     }

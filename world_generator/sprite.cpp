@@ -23,6 +23,16 @@ convertToGrayscale() is one of them.
 boost::mutex mutex_lock;
 int threads_ready = 0;
 
+// Used for keeping track on things that use multithreading
+void reportReady()
+{
+    mutex_lock.lock();
+    fprintf(stderr, "Thread reporting ready: %d", threads_ready);
+    threads_ready++;
+    fprintf(stderr, " - New value: %d\n", threads_ready);
+    mutex_lock.unlock();
+}
+
 Sprite::Sprite()
 {
 }
@@ -217,14 +227,46 @@ void setPixelOffClass(SDL_Surface *pSurface, int x, int y, SDL_Color color)
     memcpy(pPosition, &col, pSurface->format->BytesPerPixel);
 }
 
+void setPixels(SDL_Surface* surface, SDL_Color col, int start_x, int stop_x, int start_y, int stop_y)
+{
+    for (int i = start_x; i < stop_x; i++)
+    {
+        for (int j = start_y; j < stop_y; j++)
+        {
+            setPixelOffClass(surface, i, j, col);
+        }
+    }
+    reportReady();
+}
+
 // Set all pixels of a surface to one color
+// Multithreaded
 void Sprite::setAllPixels(SDL_Surface* pSurface, SDL_Color col)
 {
     SDL_LockSurface(spriteSurface);
-    for (int i = 0; i < w; i++) {
-        for (int j = 0; j < h; j++) {
-            setPixel(pSurface, i, j, col);
-        }
+    int number_of_threads = 8;
+    int work_per_thread = floor(float(w) / float(number_of_threads));
+    std::vector<boost::thread*> threadContainer;
+    threads_ready = 0;
+
+    for (int i = 0; i < number_of_threads; i++)
+    {
+        boost::thread pixelSetter(setPixels, pSurface, col, i*work_per_thread, (i+1)*work_per_thread, 0, h);
+        boost::thread* threadPtr = &pixelSetter;
+        threadContainer.push_back(threadPtr);
+    }
+
+    fprintf(stderr, "Waiting for threads to finish at pixel set\n");
+
+    while (threads_ready < number_of_threads)
+    {
+    }
+
+    fprintf(stderr, "Joining threads at pixel set\n");
+    std::vector<boost::thread*>::iterator iter;
+    for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
+    {
+        (*iter)->join();
     }
 
     SDL_UnlockSurface(spriteSurface);
@@ -312,15 +354,6 @@ void appendFinishedTexture(float*** container, int index, float** texture)
     container[index] = texture;
     threads_ready++;
     fprintf(stderr, "Appending finished texture at octave %d\n", index);
-    mutex_lock.unlock();
-}
-
-void reportReady()
-{
-    mutex_lock.lock();
-    fprintf(stderr, "Thread reporting ready: %d", threads_ready);
-    threads_ready++;
-    fprintf(stderr, " - New value: %d\n", threads_ready);
     mutex_lock.unlock();
 }
 
@@ -480,13 +513,17 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
     return out;
 }
 
+// Merges all surfaces by taking an average colour based on all the surfaces
 // All surfaces should be the same size
+// This is generally going to be run via multiple threads, each handling one area from start_x to stop_x, usually for full columns of y
+// TODO: Highly ineffective. Some IO problems between threads? Where? Writing to the final surface? 
 void mergeSurfaces(std::vector<SDL_Surface*> surfaceVector, SDL_Surface* out, int start_x, int stop_x, int start_y, int stop_y)
 {
     int numberOfSurfaces = surfaceVector.size();
 
     std::vector<SDL_Surface*>::iterator iter;
     iter = surfaceVector.begin();
+    // Get the surface size from the first surface. Assume that everything that follows is of the same size
     int sizeX = (*iter)->w;
     int sizeY = (*iter)->h;
 
@@ -513,6 +550,49 @@ void mergeSurfaces(std::vector<SDL_Surface*> surfaceVector, SDL_Surface* out, in
     reportReady();
 }
 
+// Merges two surfaces with specified factor
+// Factor of 0: produced surface is 100% s1
+// Factor of 1: produced surface is 100% s2
+// Surfaces should be the same size
+void mergeTwoSurfaces(SDL_Surface* s1, SDL_Surface* s2, SDL_Surface* out, float factor, bool red_only, int start_x, int stop_x, int start_y, int stop_y)
+{
+    for (int i = start_x; i < stop_x; i++)
+    {
+        for (int j = start_y; j < stop_y; j++)
+        {
+            SDL_Color new_colour;
+            SDL_Color col1;
+            SDL_Color col2;
+
+            // Limit the factor. Without the limit this could be used for lossy amplifying of a surface, though?
+            if (factor < 0.0f)
+                factor = 0.0f;
+            else if (factor > 1.0f)
+                factor = 1.0f;
+
+            col1 = getPixelOffClass(s1, i, j);
+            col2 = getPixelOffClass(s2, i, j);
+            
+            // The produced colour is a weighted average: (1.0f-factor*col1) + ( (factor)*col2) where factor is in range 0...1
+
+            new_colour.r = (1.0f-factor*col1.r) + ( (factor)*col2.r);
+
+            // Optimize a bit by reducing colour look ups by 1/3 in case the image is black & white
+            if (!red_only)
+            {
+                new_colour.g = (factor*col1.g) + ( (1.0f-factor)*col2.g);
+                new_colour.b = (factor*col1.b) + ( (1.0f-factor)*col2.b);
+            } else
+            {
+                new_colour.g = new_colour.r;
+                new_colour.b = new_colour.r;
+            }
+            setPixelOffClass(out, i, j, new_colour);
+        }
+    }
+    reportReady();
+}
+
 // Creates some perlin noise
 void Sprite::createClouds()
 {
@@ -524,21 +604,22 @@ void Sprite::createClouds()
     convertToGreyScale();
     float** base = generateBaseNoise();
     std::vector<SDL_Surface*> surfaceVector;
-    SDL_Surface* s1 = generatePerlinNoise(base, 10);
-    spriteSurface = s1;
-    /*
-    SDL_Surface* s2 = generatePerlinNoise(base, 10);
-    surfaceVector.push_back(s1);
-    surfaceVector.push_back(s2);
+    SDL_Surface* lovely_perlin = generatePerlinNoise(base, 10);
+    SDL_Surface* dark_and_messy = generatePerlinNoise(base, 2);
+
+    surfaceVector.push_back(lovely_perlin);
+    surfaceVector.push_back(dark_and_messy);
 
     int number_of_threads = 8;
     int work_per_thread = floor(float(w) / float(number_of_threads));
     std::vector<boost::thread*> threadContainer;
     threads_ready = 0;
 
+    SDL_LockSurface(spriteSurface);
+
     for (int i = 0; i < number_of_threads; i++)
     {
-        boost::thread surfaceMerger(mergeSurfaces, surfaceVector, spriteSurface, i*work_per_thread, (i+1)*work_per_thread, 0, h);
+        boost::thread surfaceMerger(mergeTwoSurfaces, lovely_perlin, dark_and_messy, spriteSurface, 0.9f, true, i*work_per_thread, (i+1)*work_per_thread, 0, h);
         boost::thread* threadPtr = &surfaceMerger;
         threadContainer.push_back(threadPtr);
     }
@@ -555,7 +636,7 @@ void Sprite::createClouds()
     {
         (*iter)->join();
     }
-    */
+    SDL_UnlockSurface(spriteSurface);
     regenerateTexture();
 }
 

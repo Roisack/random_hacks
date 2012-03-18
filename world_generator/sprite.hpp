@@ -1,6 +1,10 @@
 #ifndef _SPRITE_HPP_
 #define _SPRITE_HPP_
 
+// This class is a bit of a mess. I coded it based on a class by a friend of mine
+// and kept on adding features as I went on, never really bothering to clean things up
+// It's all public, for one. Text class, if included, uses Sprite as a parent
+
 #include <string>
 #include <vector>
 #ifdef WIN32
@@ -25,7 +29,7 @@ public:
     GLuint id;					// The OpenGL handle
     GLenum format;				// The colour format (RGB, RGBA, LUMINANCE)
     float opacity;				// The transparency of the sprite
-    std::string name;			// The name of our sprite
+    std::string name;			// The name of our sprite. Useful for fast debugging
     Sprite();
     Sprite(int sizeX, int sizeY);
     Sprite(std::string &path);
