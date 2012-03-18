@@ -12,16 +12,19 @@ operations the glTexture2D is reseted and re-created, so the operations are some
 convertToGrayscale() is one of them.
 */
 
+#include "manager.hpp"
 #include "sprite.hpp"
 #include "toolbox.hpp"
 #include "opengl.hpp"
 #include <assert.h>
 #include <cmath>
-#include "manager.hpp"
-
+#include <windows.h>
 #include <boost/thread.hpp> // Sticking with boost threads since Bill's compiler doesn't have proper C++11 support yet
+
 boost::mutex mutex_lock;
 int threads_ready = 0;
+int threads_ready2 = 0;
+int number_of_threads = 8;
 
 // Used for keeping track on things that use multithreading
 void reportReady()
@@ -30,6 +33,14 @@ void reportReady()
     fprintf(stderr, "Thread reporting ready: %d", threads_ready);
     threads_ready++;
     fprintf(stderr, " - New value: %d\n", threads_ready);
+    mutex_lock.unlock();
+}
+
+// Used for keeping track on things that use multithreading
+void reportReady2()
+{
+    mutex_lock.lock();
+    threads_ready2++;
     mutex_lock.unlock();
 }
 
@@ -244,7 +255,7 @@ void setPixels(SDL_Surface* surface, SDL_Color col, int start_x, int stop_x, int
 void Sprite::setAllPixels(SDL_Surface* pSurface, SDL_Color col)
 {
     SDL_LockSurface(spriteSurface);
-    int number_of_threads = 8;
+    number_of_threads = 8;
     int work_per_thread = floor(float(w) / float(number_of_threads));
     std::vector<boost::thread*> threadContainer;
     threads_ready = 0;
@@ -390,7 +401,7 @@ void Sprite::generateSmoothNoise(float** baseNoise, int octave, float*** contain
 
     // The computation for making the smooth noise texture is multithreaded
     // Each thread will handle a slice of the texture from some x1 to x2, and y values from 0 to the end of the array, h
-    int number_of_threads = 8;
+    number_of_threads = 8;
     int work_per_thread = floor(float(w) / float(number_of_threads));
     std::vector<boost::thread*> threadContainer;
     threads_ready = 0;
@@ -462,7 +473,7 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
     SDL_Color temp;
     SDL_Surface* out = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0, 0, 0, 0);
 
-    int number_of_threads = 8;
+    number_of_threads = 8;
     int work_per_thread = floor(float(w) / float(number_of_threads));
     std::vector<boost::thread*> threadContainer;
     threads_ready = 0;
@@ -593,6 +604,68 @@ void mergeTwoSurfaces(SDL_Surface* s1, SDL_Surface* s2, SDL_Surface* out, float 
     reportReady();
 }
 
+// Multithreaded blurring function
+// Uses a lot of memory as the threads cannot simultaneously modify the surface,
+// thus requiring writing stuff into temporary tables
+// TODO: Add the rest of the colours if this works
+void blurSurface(SDL_Surface* out, int range_x, int range_y, int start_x, int stop_x, int start_y, int stop_y)
+{
+    float** temp = tbox.giveFloatArray2D(stop_x - start_x, stop_y - start_y);
+    SDL_Color col;
+    col.r = 0;
+    col.g = 0;
+    col.b = 0;
+
+    // Mighty Cthulhu help us... 4 for loops
+    for (int i = start_x; i < stop_x; i++)
+    {
+        for (int j = start_y; j < stop_y; j++)
+        {
+            // For each pixel, do range_x*range_y kernel blur
+            float sum = 0.0f;
+            for (int kernel_x = -1 * range_x; kernel_x < range_x; kernel_x++)
+            {
+                for (int kernel_y = range_y; kernel_y > -1 * range_y; kernel_y--)
+                {
+                    if (i < range_x || i > stop_x || j < range_y || j > stop_y - range_y-1)
+                        continue;
+                    sum += getPixelOffClass(out, i+kernel_x, j+kernel_y).r;
+                }
+            }
+
+            if (i > stop_x-10 && j > stop_y-10)
+                int a = 5;
+            // Okay, we got the sum of all colour values for this area. Should probably do some weighting, but too lazy
+            sum = sum / ((range_x*2)*(range_y*2));
+            temp[i-start_x][j-start_y] = sum;
+        }
+    }
+
+    reportReady2();
+    fprintf(stderr, "Thread waiting: start_x: %d, stop_x: %d\n", start_x, stop_x);
+
+    // Wait for all parts of the image to be calculated
+    while (threads_ready2 < number_of_threads)
+    {
+    }
+
+    // Merge the finished surface
+
+    for (int i = start_x; i < stop_x; i++)
+    {
+        for (int j = start_y; j < stop_y; j++)
+        {
+            col.r = temp[i-start_x][j-start_y];
+            col.g = col.r;
+            col.b = col.r;
+            setPixelOffClass(out, i, j, col);
+        }
+    }
+
+    tbox.deleteFloatArray2D(temp, stop_x - start_x);
+    reportReady();
+}
+
 // Creates some perlin noise
 void Sprite::createClouds()
 {
@@ -601,16 +674,22 @@ void Sprite::createClouds()
     //    Most of this stuff I found with random googling and implemented it as I could
     // 2) I want to experiment with multithreading and see the performance increase.
     //    Eventually I hope to do this on a fragment shader
-    convertToGreyScale();
     float** base = generateBaseNoise();
     std::vector<SDL_Surface*> surfaceVector;
     SDL_Surface* lovely_perlin = generatePerlinNoise(base, 10);
+    spriteSurface = lovely_perlin;
+
+    // Give some output on the screen while we are working =)
+    regenerateTexture();
+    render();
+    SDL_GL_SwapBuffers();
+
     SDL_Surface* dark_and_messy = generatePerlinNoise(base, 2);
 
     surfaceVector.push_back(lovely_perlin);
     surfaceVector.push_back(dark_and_messy);
 
-    int number_of_threads = 8;
+    number_of_threads = 8;
     int work_per_thread = floor(float(w) / float(number_of_threads));
     std::vector<boost::thread*> threadContainer;
     threads_ready = 0;
@@ -636,6 +715,36 @@ void Sprite::createClouds()
     {
         (*iter)->join();
     }
+
+    threadContainer.clear();
+    threads_ready = 0;
+
+    regenerateTexture();
+    render();
+    SDL_GL_SwapBuffers();
+
+    // Blur the finished image for the heck of it. No really, this will be used for Important Stuff(tm) at some point. Probably
+
+    for (int i = 0; i < number_of_threads; i++)
+    {
+        boost::thread blurrer(blurSurface, spriteSurface, 3, 3,, i*work_per_thread, (i+1)*work_per_thread, 0, h);
+        boost::thread* threadPtr = &blurrer;
+        threadContainer.push_back(threadPtr);
+    }
+
+    fprintf(stderr, "Waiting for threads to finish blurring\n");
+
+    while (threads_ready < number_of_threads)
+    {
+    }
+
+    fprintf(stderr, "Joining threads\n");
+
+    for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
+    {
+        (*iter)->join();
+    }
+
     SDL_UnlockSurface(spriteSurface);
     regenerateTexture();
 }

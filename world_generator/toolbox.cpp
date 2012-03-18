@@ -277,6 +277,12 @@ void Toolbox::clearFloatArray3D(float*** arr, int sizeX, int sizeY, int sizeZ)
     }
 }
 
+void Toolbox::deleteFloatArray2D(float** arr, int sizeX)
+{
+    for (unsigned int i = 0; i < sizeX; i++)
+        delete[] arr[i];
+}
+
 void Toolbox::deleteFloatArray3D(float*** arr, int sizeX, int sizeY)
 {
     for (unsigned int i = 0; i < sizeX; i++)
