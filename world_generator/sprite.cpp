@@ -18,7 +18,6 @@ convertToGrayscale() is one of them.
 #include "opengl.hpp"
 #include <assert.h>
 #include <cmath>
-#include <windows.h>
 #include <boost/thread.hpp> // Sticking with boost threads since Bill's compiler doesn't have proper C++11 support yet
 
 boost::mutex mutex_lock;
