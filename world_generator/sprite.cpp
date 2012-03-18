@@ -30,9 +30,7 @@ int number_of_threads = 8;
 void reportReady()
 {
     mutex_lock.lock();
-    fprintf(stderr, "Thread reporting ready: %d", threads_ready);
     threads_ready++;
-    fprintf(stderr, " - New value: %d\n", threads_ready);
     mutex_lock.unlock();
 }
 
@@ -273,7 +271,6 @@ void Sprite::setAllPixels(SDL_Surface* pSurface, SDL_Color col)
     {
     }
 
-    fprintf(stderr, "Joining threads at pixel set\n");
     std::vector<boost::thread*>::iterator iter;
     for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
     {
@@ -364,7 +361,6 @@ void appendFinishedTexture(float*** container, int index, float** texture)
     mutex_lock.lock();
     container[index] = texture;
     threads_ready++;
-    fprintf(stderr, "Appending finished texture at octave %d\n", index);
     mutex_lock.unlock();
 }
 
@@ -419,7 +415,6 @@ void Sprite::generateSmoothNoise(float** baseNoise, int octave, float*** contain
     {
     }
 
-    fprintf(stderr, "Joining threads for octave %d\n", octave);
     std::vector<boost::thread*>::iterator iter;
     for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
     {
@@ -499,7 +494,6 @@ SDL_Surface* Sprite::generatePerlinNoise(float** baseNoise, int octaveCount)
         {
         }
 
-        fprintf(stderr, "Joining threads for octave %d\n", octave);
         std::vector<boost::thread*>::iterator iter;
         for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
         {
@@ -586,7 +580,7 @@ void mergeTwoSurfaces(SDL_Surface* s1, SDL_Surface* s2, SDL_Surface* out, float 
             
             // The produced colour is a weighted average: (1.0f-factor*col1) + ( (factor)*col2) where factor is in range 0...1
 
-            new_colour.r = (1.0f-factor*col1.r) + ( (factor)*col2.r);
+            new_colour.r = ((1.0f-factor)*col1.r) + ( (factor)*col2.r);
 
             // Optimize a bit by reducing colour look ups by 1/3 in case the image is black & white
             if (!red_only)
@@ -633,8 +627,6 @@ void blurSurface(SDL_Surface* out, int range_x, int range_y, int start_x, int st
                 }
             }
 
-            if (i > stop_x-10 && j > stop_y-10)
-                int a = 5;
             // Okay, we got the sum of all colour values for this area. Should probably do some weighting, but too lazy
             sum = sum / ((range_x*2)*(range_y*2));
             temp[i-start_x][j-start_y] = sum;
@@ -674,65 +666,79 @@ void Sprite::createClouds()
     //    Most of this stuff I found with random googling and implemented it as I could
     // 2) I want to experiment with multithreading and see the performance increase.
     //    Eventually I hope to do this on a fragment shader
+
+    std::vector<boost::thread*> threadContainer;
+    std::vector<boost::thread*>::iterator iter;
+
+    SDL_LockSurface(spriteSurface);
+
+    number_of_threads = 8;
+    int work_per_thread = floor(float(w) / float(number_of_threads));
+
     float** base = generateBaseNoise();
     std::vector<SDL_Surface*> surfaceVector;
     SDL_Surface* lovely_perlin = generatePerlinNoise(base, 10);
     spriteSurface = lovely_perlin;
 
     // Give some output on the screen while we are working =)
+    SDL_UnlockSurface(spriteSurface);
     regenerateTexture();
     render();
     SDL_GL_SwapBuffers();
+    SDL_LockSurface(spriteSurface);
 
     SDL_Surface* dark_and_messy = generatePerlinNoise(base, 2);
 
-    surfaceVector.push_back(lovely_perlin);
-    surfaceVector.push_back(dark_and_messy);
-
-    number_of_threads = 8;
-    int work_per_thread = floor(float(w) / float(number_of_threads));
-    std::vector<boost::thread*> threadContainer;
-    threads_ready = 0;
-
-    SDL_LockSurface(spriteSurface);
-
-    for (int i = 0; i < number_of_threads; i++)
-    {
-        boost::thread surfaceMerger(mergeTwoSurfaces, lovely_perlin, dark_and_messy, spriteSurface, 0.9f, true, i*work_per_thread, (i+1)*work_per_thread, 0, h);
-        boost::thread* threadPtr = &surfaceMerger;
-        threadContainer.push_back(threadPtr);
-    }
-
-    fprintf(stderr, "Waiting for threads to finish combining surfaces\n");
-
-    while (threads_ready < number_of_threads)
-    {
-    }
-
-    fprintf(stderr, "Joining threads\n");
-    std::vector<boost::thread*>::iterator iter;
-    for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
-    {
-        (*iter)->join();
-    }
-
-    threadContainer.clear();
-    threads_ready = 0;
-
+    SDL_UnlockSurface(spriteSurface);
+    spriteSurface = dark_and_messy;
     regenerateTexture();
     render();
     SDL_GL_SwapBuffers();
+    SDL_LockSurface(spriteSurface);
 
-    // Blur the finished image for the heck of it. No really, this will be used for Important Stuff(tm) at some point. Probably
+    fprintf(stderr, "Blurring\n");
+    threads_ready = 0;
 
+    // Blur the messy surface
     for (int i = 0; i < number_of_threads; i++)
     {
-        boost::thread blurrer(blurSurface, spriteSurface, 3, 3,, i*work_per_thread, (i+1)*work_per_thread, 0, h);
+        boost::thread blurrer(blurSurface, dark_and_messy, 3, 3, i*work_per_thread, (i+1)*work_per_thread, 0, h);
         boost::thread* threadPtr = &blurrer;
         threadContainer.push_back(threadPtr);
     }
 
     fprintf(stderr, "Waiting for threads to finish blurring\n");
+
+    while (threads_ready < number_of_threads)
+    {
+    }
+
+    for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
+    {
+        (*iter)->join();
+    }
+
+    spriteSurface = dark_and_messy;
+    SDL_UnlockSurface(spriteSurface);
+    regenerateTexture();
+    render();
+    SDL_GL_SwapBuffers();
+    SDL_LockSurface(spriteSurface);
+
+    surfaceVector.push_back(lovely_perlin);
+    surfaceVector.push_back(dark_and_messy);
+
+    threadContainer.clear();
+    threads_ready = 0;
+
+    for (int i = 0; i < number_of_threads; i++)
+    {
+        boost::thread surfaceMerger(mergeTwoSurfaces, lovely_perlin, dark_and_messy, spriteSurface, 0.8f, true, i*work_per_thread, (i+1)*work_per_thread, 0, h);
+        boost::thread* threadPtr = &surfaceMerger;
+        threadContainer.push_back(threadPtr);
+    }
+
+    fprintf(stderr, "Waiting for threads to finish combining surfaces\n");
 
     while (threads_ready < number_of_threads)
     {
