@@ -657,6 +657,26 @@ void blurSurface(SDL_Surface* out, int range_x, int range_y, int start_x, int st
     reportReady();
 }
 
+// Filters a height map so that it makes anything below treshold into some color
+// Assumes greyscale
+SDL_Surface* filterMap(SDL_Surface* in, SDL_Color col, float filter)
+{
+    SDL_Surface* out = SDL_CreateRGBSurface(SDL_SWSURFACE, in->w, in->h, 32, 0, 0, 0, 0);
+    SDL_Color temp;
+    for (int i = 0; i < in->w; i++)
+    {
+        for (int j = 0; j < in->h; j++)
+        {
+            temp = getPixelOffClass(in, i, j);
+            if (temp.r > filter)
+                setPixelOffClass(out, i, j, col);
+            else
+                setPixelOffClass(out, i, j, temp);
+        }
+    }
+    return out;
+}
+
 // Creates some perlin noise
 void Sprite::createClouds()
 {
@@ -676,15 +696,119 @@ void Sprite::createClouds()
 
     float** base = generateBaseNoise();
     std::vector<SDL_Surface*> surfaceVector;
-    SDL_Surface* lovely_perlin = generatePerlinNoise(base, 10);
+    SDL_Surface* lovely_perlin = generatePerlinNoise(base, 12);
     spriteSurface = lovely_perlin;
+    threads_ready = 0;
 
     // Give some output on the screen while we are working =)
     SDL_UnlockSurface(spriteSurface);
     regenerateTexture();
     render();
     SDL_GL_SwapBuffers();
-    SDL_LockSurface(spriteSurface);
+    SDL_LockSurface(spriteSurface); 
+
+    SDL_Surface* big_perlin = generatePerlinNoise(base, 10);
+    SDL_Surface* bigger_perlin = generatePerlinNoise(base, 13);
+    SDL_Surface* placeHolder = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0, 0, 0, 0);
+
+    threadContainer.clear();
+    threads_ready = 0;
+
+    for (int i = 0; i < number_of_threads; i++)
+    {
+        boost::thread surfaceMerger(mergeTwoSurfaces, bigger_perlin, big_perlin, placeHolder, 0.8f, true, i*work_per_thread, (i+1)*work_per_thread, 0, h);
+        boost::thread* threadPtr = &surfaceMerger;
+        threadContainer.push_back(threadPtr);
+    }
+
+    fprintf(stderr, "Waiting for threads to finish combining surfaces\n");
+
+    while (threads_ready < number_of_threads)
+    {
+    }
+
+    fprintf(stderr, "Joining threads\n");
+
+    for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
+    {
+        (*iter)->join();
+    }
+
+    spriteSurface = placeHolder;
+
+    SDL_UnlockSurface(spriteSurface);
+    regenerateTexture();
+    render();
+    SDL_GL_SwapBuffers();
+    SDL_LockSurface(spriteSurface); 
+
+    threadContainer.clear();
+    threads_ready = 0;
+
+    for (int i = 0; i < number_of_threads; i++)
+    {
+        boost::thread surfaceMerger(mergeTwoSurfaces, lovely_perlin, placeHolder, spriteSurface, 0.5f, true, i*work_per_thread, (i+1)*work_per_thread, 0, h);
+        boost::thread* threadPtr = &surfaceMerger;
+        threadContainer.push_back(threadPtr);
+    }
+
+    fprintf(stderr, "Waiting for threads to finish combining surfaces\n");
+
+    while (threads_ready < number_of_threads)
+    {
+    }
+
+    fprintf(stderr, "Joining threads\n");
+
+    for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
+    {
+        (*iter)->join();
+    }
+
+    SDL_UnlockSurface(spriteSurface);
+    regenerateTexture();
+    render();
+    SDL_GL_SwapBuffers();
+    SDL_LockSurface(spriteSurface); 
+
+    threadContainer.clear();
+    threads_ready = 0;
+
+
+    for (int i = 0; i < number_of_threads; i++)
+    {
+        boost::thread blurrer(blurSurface, lovely_perlin, 8, 8, i*work_per_thread, (i+1)*work_per_thread, 0, h);
+        boost::thread* threadPtr = &blurrer;
+        threadContainer.push_back(threadPtr);
+    }
+
+    fprintf(stderr, "Waiting for threads to finish blurring\n");
+
+    while (threads_ready < number_of_threads)
+    {
+    }
+
+    for (iter = threadContainer.begin(); iter != threadContainer.end(); iter++)
+    {
+        (*iter)->join();
+    }
+
+
+    // Now that we have the first perlin noise, let's use that as a general global height map
+    // Time to add sea level
+    SDL_Color blue;
+    blue.r = 255;   // What the eff is this anyway? I want blue, not red.
+    blue.g = 0;
+    blue.b = 0;
+    lovely_perlin = filterMap(lovely_perlin, blue, 140);
+    spriteSurface = lovely_perlin;
+
+    SDL_UnlockSurface(spriteSurface);
+    regenerateTexture();
+    render();
+    SDL_GL_SwapBuffers();
+    SDL_LockSurface(spriteSurface); 
+/*
 
     SDL_Surface* dark_and_messy = generatePerlinNoise(base, 2);
 
@@ -752,6 +876,7 @@ void Sprite::createClouds()
 
     SDL_UnlockSurface(spriteSurface);
     regenerateTexture();
+*/
 }
 
 void Sprite::convertToGreyScale()
