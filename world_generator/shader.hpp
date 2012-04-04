@@ -9,8 +9,8 @@ class Shader
 {
 private:
     int id;
-    std::string vs_source;
-    std::string fs_source;
+    char* vs_source;
+    char* fs_source;
     GLuint vs_handle;
     GLuint fs_handle;
     GLuint shader_handle;
@@ -18,8 +18,14 @@ public:
     Shader(const char* vertexShaderFilePath, const char* fragmentShaderFilePath);
     ~Shader();
 
-    void loadSource(const char* filepath, std::string* buffer);
+    char* loadSource(const char* filepath);
     void compile();
+    int printOpenglError(char *file, int line);
+    void printShaderInfoLog(GLuint obj);
+    void printProgramInfoLog(GLuint obj);
+
+    void use();
+    void unuse();
 };
 
 #endif
