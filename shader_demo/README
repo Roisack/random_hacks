@@ -1,0 +1,3 @@
+This is a sandbox for writing shaders. Previously I always did this by using a bloated and buggy program that I've been developing for ages, learning more as I went on and changing things left and right. Eventually that program became so complex and contained so varying level of code that it was too difficult to simply write a shader and see how it works. I decided that in the interest of focusing the detail on the actual topic a simpler program was required. So I wrote this thing which does nothing else than has a 2D surface with simple controls and program management with the facilities for writing and testing shaders. It can do 3D models too, at some point. Call it a "shader viewer" if you want.
+
+
