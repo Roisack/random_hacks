@@ -564,5 +564,10 @@ void main( void )
   //float n = snoise(vec3(2.0 * v_texCoord3D.xyz * (2.0 + sin(0.5 * time))));
   //float n = noise(vec4(8.0 * v_texCoord3D.xyz, 0.5 * time));
   //float n = snoise(vec4(4.0 * v_texCoord3D.xyz, 0.5 * time));
-  gl_FragColor = v_color * vec4(0.5 + 0.5 * vec3(n, n, n), 1.0);
+  vec4 col = vec4(n,n,n,1.0f);
+  col.r = n;
+  col.g = n*sin(time) - v_texCoord2D.t*3;
+  col.b = (col.r + col.g)/2*cos(time/3) - v_texCoord2D.s*3;
+  //gl_FragColor = v_color * vec4(0.5 + 0.5 * vec3(n, n, n), 1.0);
+  gl_FragColor = v_color * col;
 }
