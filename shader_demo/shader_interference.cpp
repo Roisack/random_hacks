@@ -17,3 +17,19 @@ void ShaderInterference::update()
     set_int("size_y", 1024);
     set_float("time", manager.getTime()*10);
 }
+
+void ShaderInterference::action1()
+{
+}
+
+void ShaderInterference::action2()
+{
+}
+
+void ShaderInterference::action3()
+{
+}
+
+void ShaderInterference::action4()
+{
+}

@@ -2,6 +2,7 @@
 #include "toolbox.hpp"
 #include "shader.hpp"
 #include "shader_interference.hpp"
+#include "shader_perlinnoise.hpp"
 #ifdef WIN32
 #include <SDL.h>
 #else
@@ -34,7 +35,7 @@ bool RoomManager::init()
     std::string temp = "data/2D/stars_1024x1024.png";
     boost::shared_ptr<Sprite> shader_surface(new Sprite(temp));
 
-    boost::shared_ptr<ShaderInterference> shaderPtr(new ShaderInterference("interference.vert", "interference.frag"));
+    boost::shared_ptr<ShaderPerlinNoise> shaderPtr(new ShaderPerlinNoise("perlinnoise.vert", "perlinnoise.frag"));
     shader_surface->addShader(shaderPtr);
 
     room1Ptr->addSprite("shader_surface", shader_surface);

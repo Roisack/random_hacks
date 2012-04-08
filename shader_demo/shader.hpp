@@ -29,6 +29,10 @@ public:
     void set_int(const char* n, int v);
     void set_float(const char* n, float v);
     virtual void update() = 0;
+    virtual void action1() = 0;
+    virtual void action2() = 0;
+    virtual void action3() = 0;
+    virtual void action4() = 0;
 };
 
 #endif

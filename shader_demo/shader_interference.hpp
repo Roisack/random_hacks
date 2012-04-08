@@ -11,6 +11,10 @@ public:
     ShaderInterference(const char* vs_filepath, const char* fs_filepath);
     ~ShaderInterference();
     void update();
+    void action1();
+    void action2();
+    void action3();
+    void action4();
 };
 
 #endif

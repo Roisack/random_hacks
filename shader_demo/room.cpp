@@ -1,7 +1,9 @@
 #include "room.hpp"
 #include "manager.hpp"
 #include "renderer.hpp"
-
+#include "shader.hpp"
+#include "shader_perlinNoise.hpp"
+#include "shader_interference.hpp"
 
 Room::Room(std::string s, std::string mus, int n, int t)
 {
@@ -141,6 +143,50 @@ void Room::toggleShaders()
         if ((*spriteIterator).second->hasShader)
         {
             (*spriteIterator).second->toggleShader();
+        }
+    }
+}
+
+void Room::shaderAction1()
+{
+    for (spriteIterator = spriteMap.begin(); spriteIterator != spriteMap.end(); spriteIterator++)
+    {
+        if ((*spriteIterator).second->hasShader)
+        {
+            (*spriteIterator).second->shaderPtr->action1();
+        }
+    }
+}
+
+void Room::shaderAction2()
+{
+    for (spriteIterator = spriteMap.begin(); spriteIterator != spriteMap.end(); spriteIterator++)
+    {
+        if ((*spriteIterator).second->hasShader)
+        {
+            (*spriteIterator).second->shaderPtr->action2();
+        }
+    }
+}
+
+void Room::shaderAction3()
+{
+    for (spriteIterator = spriteMap.begin(); spriteIterator != spriteMap.end(); spriteIterator++)
+    {
+        if ((*spriteIterator).second->hasShader)
+        {
+            (*spriteIterator).second->shaderPtr->action3();
+        }
+    }
+}
+
+void Room::shaderAction4()
+{
+    for (spriteIterator = spriteMap.begin(); spriteIterator != spriteMap.end(); spriteIterator++)
+    {
+        if ((*spriteIterator).second->hasShader)
+        {
+            (*spriteIterator).second->shaderPtr->action4();
         }
     }
 }

@@ -81,6 +81,18 @@ void Inputmanager::checkInput()
                         case SDLK_a:
                             currentRoom->toggleShaders();
                             break;
+                        case SDLK_q:
+                            currentRoom->shaderAction1();
+                            break;
+                        case SDLK_w:
+                            currentRoom->shaderAction2();
+                            break;
+                        case SDLK_e:
+                            currentRoom->shaderAction3();
+                            break;
+                        case SDLK_r:
+                            currentRoom->shaderAction4();
+                            break;
                     }
                 break;
             }

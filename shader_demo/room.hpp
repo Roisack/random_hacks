@@ -39,6 +39,10 @@ public:
     void removeSprite(std::string name);
     void iterateSprites();
     void toggleShaders();
+    void shaderAction1();
+    void shaderAction2();
+    void shaderAction3();
+    void shaderAction4();
 
     void addModel(std::string name, boost::shared_ptr<Object3D> m);
     void removeModel(std::string name);
