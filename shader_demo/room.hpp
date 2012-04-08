@@ -43,6 +43,10 @@ public:
     void shaderAction2();
     void shaderAction3();
     void shaderAction4();
+    void shaderAction5();
+    void shaderAction6();
+    void shaderAction7();
+    void shaderAction8();
 
     void addModel(std::string name, boost::shared_ptr<Object3D> m);
     void removeModel(std::string name);

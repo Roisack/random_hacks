@@ -12,6 +12,9 @@ private:
     boost::shared_ptr<Sprite> baseNoise;
     float persistence;
     float amplitude;
+    int octaveSetter;
+    int magicNumber1;
+    int magicNumber2;
 public:
     ShaderPerlinNoise(const char* vs_filepath, const char* fs_filepath);
     ~ShaderPerlinNoise();
@@ -20,6 +23,10 @@ public:
     void action2();
     void action3();
     void action4();
+    void action5();
+    void action6();
+    void action7();
+    void action8();
 };
 
 #endif

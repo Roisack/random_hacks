@@ -93,6 +93,18 @@ void Inputmanager::checkInput()
                         case SDLK_r:
                             currentRoom->shaderAction4();
                             break;
+                        case SDLK_t:
+                            currentRoom->shaderAction5();
+                            break;
+                        case SDLK_y:
+                            currentRoom->shaderAction6();
+                            break;
+                        case SDLK_u:
+                            currentRoom->shaderAction7();
+                            break;
+                        case SDLK_i:
+                            currentRoom->shaderAction8();
+                            break;
                     }
                 break;
             }

@@ -33,6 +33,10 @@ public:
     virtual void action2() = 0;
     virtual void action3() = 0;
     virtual void action4() = 0;
+    virtual void action5() = 0;
+    virtual void action6() = 0;
+    virtual void action7() = 0;
+    virtual void action8() = 0;
 };
 
 #endif

@@ -1,6 +1,9 @@
 uniform sampler2D tex0;
 uniform float persistence;
 uniform float amplitude;
+uniform int octaveSetter;
+uniform int magicNumber1;
+uniform int magicNumber2;
 
 // This file has been modified from the original source by Stefan Gustavson
 
@@ -541,14 +544,14 @@ void main( void )
   float persistence_copy = persistence;
   float amplitude_copy = amplitude;
   
-  for (int i = 0; i < 20; i++)
+  for (int i = 0; i < octaveSetter && i < 20; i++)
   {
-    noiseOctaves[i] = noise(v_texCoord2D.st * i*i - texture2D(tex0, v_texCoord2D.st).r );
+    noiseOctaves[i] = snoise(v_texCoord2D.st * i*i + magicNumber1 - texture2D(tex0, v_texCoord2D.st).r*magicNumber2 );
   }
   
   float finalColor = 0.0f;
   
-  for (int i = 0; i < 20; i++)
+  for (int i = 0; i < octaveSetter && i < 20; i++)
   {
     amplitude_copy *= persistence_copy;
     finalColor += noiseOctaves[i] * amplitude;

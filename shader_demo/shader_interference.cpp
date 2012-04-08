@@ -33,3 +33,19 @@ void ShaderInterference::action3()
 void ShaderInterference::action4()
 {
 }
+
+void ShaderInterference::action5()
+{
+}
+
+void ShaderInterference::action6()
+{
+}
+
+void ShaderInterference::action7()
+{
+}
+
+void ShaderInterference::action8()
+{
+}

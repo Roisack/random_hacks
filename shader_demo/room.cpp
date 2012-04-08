@@ -190,3 +190,47 @@ void Room::shaderAction4()
         }
     }
 }
+
+void Room::shaderAction5()
+{
+    for (spriteIterator = spriteMap.begin(); spriteIterator != spriteMap.end(); spriteIterator++)
+    {
+        if ((*spriteIterator).second->hasShader)
+        {
+            (*spriteIterator).second->shaderPtr->action5();
+        }
+    }
+}
+
+void Room::shaderAction6()
+{
+    for (spriteIterator = spriteMap.begin(); spriteIterator != spriteMap.end(); spriteIterator++)
+    {
+        if ((*spriteIterator).second->hasShader)
+        {
+            (*spriteIterator).second->shaderPtr->action6();
+        }
+    }
+}
+
+void Room::shaderAction7()
+{
+    for (spriteIterator = spriteMap.begin(); spriteIterator != spriteMap.end(); spriteIterator++)
+    {
+        if ((*spriteIterator).second->hasShader)
+        {
+            (*spriteIterator).second->shaderPtr->action7();
+        }
+    }
+}
+
+void Room::shaderAction8()
+{
+    for (spriteIterator = spriteMap.begin(); spriteIterator != spriteMap.end(); spriteIterator++)
+    {
+        if ((*spriteIterator).second->hasShader)
+        {
+            (*spriteIterator).second->shaderPtr->action8();
+        }
+    }
+}
