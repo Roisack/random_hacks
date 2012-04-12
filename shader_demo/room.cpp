@@ -2,8 +2,8 @@
 #include "manager.hpp"
 #include "renderer.hpp"
 #include "shader.hpp"
-#include "shader_perlinNoise.hpp"
-#include "shader_interference.hpp"
+//#include "shader_perlinNoise.hpp"
+//#include "shader_interference.hpp"
 
 Room::Room(std::string s, std::string mus, int n, int t)
 {
