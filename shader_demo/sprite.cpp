@@ -720,7 +720,7 @@ void Sprite::render()
     glRotatef(rotation, 0, 0, 1);
     
     glEnable(GL_TEXTURE_2D);
-    glDisable(GL_LIGHTING);
+    glEnable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
     glBindTexture(GL_TEXTURE_2D, id);
     glColor4f(col.r, col.g, col.b, opacity);

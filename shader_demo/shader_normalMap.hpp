@@ -2,11 +2,15 @@
 #define __SHADER_NORMALMAP_HPP_
 
 #include "shader.hpp"
+#include "sprite.hpp"
+#include <boost/shared_ptr.hpp>
 
 class ShaderNormalMap : public Shader
 {
 private:
     int id;
+    boost::shared_ptr<Sprite> colorMap;
+    boost::shared_ptr<Sprite> normalMap;
 public:
     ShaderNormalMap(const char* vs_filepath, const char* fs_filepath);
     ~ShaderNormalMap();
