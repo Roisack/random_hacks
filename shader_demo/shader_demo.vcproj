@@ -180,14 +180,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\interference.frag"
-				>
-			</File>
-			<File
-				RelativePath=".\interference.vert"
-				>
-			</File>
-			<File
 				RelativePath=".\main.cpp"
 				>
 			</File>
@@ -228,11 +220,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simple.frag"
+				RelativePath=".\shader_normalMap.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\simple.vert"
+				RelativePath=".\shader_perlinnoise.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\shader_perVertexLighting.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\shader_plasma.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\shader_template.cpp"
 				>
 			</File>
 			<File
@@ -290,6 +294,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\shader_normalMap.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\shader_perlinnoise.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\shader_perVertexLighting.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\shader_plasma.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\shader_template.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sprite.hpp"
 				>
 			</File>
@@ -307,6 +331,62 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\Makefile"
+				>
+			</File>
+			<File
+				RelativePath=".\README"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Shaders"
+			>
+			<File
+				RelativePath=".\interference.frag"
+				>
+			</File>
+			<File
+				RelativePath=".\interference.vert"
+				>
+			</File>
+			<File
+				RelativePath=".\normalMap.frag"
+				>
+			</File>
+			<File
+				RelativePath=".\normalMap.vert"
+				>
+			</File>
+			<File
+				RelativePath=".\perlinnoise.frag"
+				>
+			</File>
+			<File
+				RelativePath=".\perVertexLighting.frag"
+				>
+			</File>
+			<File
+				RelativePath=".\perVertexLighting.vert"
+				>
+			</File>
+			<File
+				RelativePath=".\plasma.frag"
+				>
+			</File>
+			<File
+				RelativePath=".\plasma.vert"
+				>
+			</File>
+			<File
+				RelativePath=".\simple.frag"
+				>
+			</File>
+			<File
+				RelativePath=".\simple.vert"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

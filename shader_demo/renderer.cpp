@@ -122,10 +122,12 @@ void Renderer::calculateLights()
     
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
-    GLfloat ambientLight[] = { 0.3f, 0.4f, 0.2f, 0.7f };
-    GLfloat diffuseLight[] = { 0.3f, 0.5f, 0.6f, 0.5f };
-    GLfloat specularLight[] = { 0.4f, 0.4f, 0.8f, 0.7f };
-    GLfloat position[] = { 0, 0, 60 };
+    GLfloat ambientLight[] = { 0.9f, 0.9f, 0.9f, 0.9f };
+    GLfloat diffuseLight[] = { 0.9f, 0.9f, 0.9f, 0.9f };
+    GLfloat specularLight[] = { 0.9f, 0.9f, 0.9f, 0.9f };
+    float location1 = sin(manager.getTime())*10;
+    float location2 = cos(manager.getTime())*10;
+    GLfloat position[] = { location1, location2, 20 };
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
     glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);

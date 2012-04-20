@@ -721,8 +721,8 @@ void Sprite::render()
     
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_LIGHTING);
-    glDisable(GL_DEPTH_TEST);
-    glBindTexture(GL_TEXTURE_2D, id);
+    glEnable(GL_DEPTH_TEST);
+    
     glColor4f(col.r, col.g, col.b, opacity);
     
     if (useAlpha)
@@ -739,6 +739,9 @@ void Sprite::render()
     {
         shaderPtr->use();
         shaderPtr->update();
+    } else
+    {
+        //glBindTexture(GL_TEXTURE_2D, id);
     }
     
     glBegin(GL_QUADS);

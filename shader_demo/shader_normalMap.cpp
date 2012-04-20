@@ -20,6 +20,8 @@ void ShaderNormalMap::update()
     set_int("size_x", 1024);
     set_int("size_y", 1024);
     set_float("time", manager.getTime()*10);
+    colorMap->bind(0);
+    normalMap->bind(1);
     set_int("colorMap", 0);
     set_int("normalMap", 1);
 }

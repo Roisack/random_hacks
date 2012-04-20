@@ -2,9 +2,10 @@ varying vec3 lightDir;
 varying vec3 halfVector;
 
 void main()
-{
+{   
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     gl_TexCoord[0] = gl_MultiTexCoord0;
+    vec3 temp = vec3(1.0f, 1.0f, 1.0f);
 
     vec3 n = normalize(gl_NormalMatrix * gl_Normal);
     vec3 t = normalize(gl_NormalMatrix * gl_MultiTexCoord1.xyz);
@@ -21,4 +22,3 @@ void main()
     halfVector = gl_LightSource[0].halfVector.xyz;
     halfVector = tbnMatrix * halfVector;
 }
-

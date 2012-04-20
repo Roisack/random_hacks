@@ -6,6 +6,7 @@
 #include "shader_plasma.hpp"
 #include "shader_template.hpp"
 #include "shader_normalMap.hpp"
+#include "shader_perVertexLighting.hpp";
 #ifdef WIN32
 #include <SDL.h>
 #else
@@ -38,7 +39,12 @@ bool RoomManager::init()
     std::string temp = "data/2D/stars_1024x1024.png";
     boost::shared_ptr<Sprite> shader_surface(new Sprite(temp));
 
-    boost::shared_ptr<ShaderNormalMap> shaderPtr(new ShaderNormalMap("normalMap.vert", "normalMap.frag"));
+    //boost::shared_ptr<Shader> shaderPtr(new Shader("simple.vert", "simple.frag"));
+    //boost::shared_ptr<ShaderInterference> shaderPtr(new ShaderInterfence("interference.vert", "interference.frag"));
+    //boost::shared_ptr<ShaderPerlinNoise> shaderPtr(new ShaderPerlinNoise("perlinNoise.vert", "perlinNoise.frag"));
+    //boost::shared_ptr<ShaderNormalMap> shaderPtr(new ShaderNormalMap("normalMap.vert", "normalMap.frag"));
+    boost::shared_ptr<ShaderPVL> shaderPtr(new ShaderPVL("perVertexLighting.vert", "perVertexLighting.frag"));
+    //boost::shared_ptr<ShaderPlasma> shaderPtr(new ShaderPlasma("plasma.vert", "plasma.frag"));
     shader_surface->addShader(shaderPtr);
 
     room1Ptr->addSprite("shader_surface", shader_surface);
