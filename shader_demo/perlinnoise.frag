@@ -2,8 +2,8 @@ uniform sampler2D baseNoise;
 uniform float persistence;
 uniform float amplitude;
 uniform int octaveSetter;
-uniform int magicNumber1;
-uniform int magicNumber2;
+uniform float magicNumber1;
+uniform float magicNumber2;
 uniform int size_x;
 uniform int size_y;
 varying vec2 texCoord;
@@ -67,24 +67,29 @@ float noise2(vec2 input_coords, int octave)
 
 void main( void )
 {
-  float noiseOctaves[20];
-  float persistence_copy = persistence;
-  float amplitude_copy = amplitude;
+    float noiseOctaves[20];
+    float persistence_copy = persistence;
+    float amplitude_copy = amplitude;
+    float totalAmplitude = 0.0f;
   
-  for (int i = 0; i < octaveSetter && i < 20; i++)
-  {
-    noiseOctaves[i] = noise2(texCoord.st, i);
-  }
-  
-  float finalColor = 0.0f;
-  
-  for (int i = 0; i < octaveSetter && i < 20; i++)
-  {
-    amplitude_copy *= persistence_copy;
-    finalColor += noiseOctaves[i] * amplitude;
-  }
-  
-  float n = finalColor;
-  vec4 col = vec4(n,n,n,1.0f);
-  gl_FragColor = v_color * col;
+    for (int i = 0; i < octaveSetter && i < 20; i++)
+    {
+        noiseOctaves[i] = noise2(texCoord.st, i);
+    }
+    
+    float finalColor = 0.0f;
+    
+    for (int i = octaveSetter-1; i >= 0; i--)
+    {
+        amplitude_copy *= persistence_copy;
+        totalAmplitude += amplitude_copy;
+        finalColor += (noiseOctaves[i] * amplitude_copy);
+    }
+    
+    // Normalize the noise
+    //finalColor = finalColor / totalAmplitude;
+    
+    float n = finalColor;
+    vec4 col = vec4(n,n,n,1.0f);
+    gl_FragColor = v_color * col;
 }

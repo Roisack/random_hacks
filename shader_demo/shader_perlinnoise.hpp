@@ -13,8 +13,8 @@ private:
     float persistence;
     float amplitude;
     int octaveSetter;
-    int magicNumber1;
-    int magicNumber2;
+    float magicNumber1;
+    float magicNumber2;
 public:
     ShaderPerlinNoise(const char* vs_filepath, const char* fs_filepath);
     ~ShaderPerlinNoise();
