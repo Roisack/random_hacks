@@ -33,12 +33,12 @@ void ShaderPerlinNoise::update()
 
 void ShaderPerlinNoise::action1()
 {
-    amplitude += 0.3f;
+    amplitude += 0.1f;
 }
 
 void ShaderPerlinNoise::action2()
 {
-    amplitude -= 0.3f;
+    amplitude -= 0.1f;
 }
 
 void ShaderPerlinNoise::action3()
