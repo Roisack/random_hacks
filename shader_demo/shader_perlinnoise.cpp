@@ -3,11 +3,12 @@
 
 ShaderPerlinNoise::ShaderPerlinNoise(const char* vs_filepath, const char* fs_filepath) : Shader(vs_filepath, fs_filepath)
 {
+    // Default values are pretty good
     fprintf(stderr, "ShaderPerlinNoise constructing\n");
-    baseNoise = boost::shared_ptr<Sprite>(new Sprite(1024,1024));
-    amplitude = 1.0f;
-    persistence = 0.5f;
-    octaveSetter = 1;
+    baseNoise = boost::shared_ptr<Sprite>(new Sprite(2048, 2048));
+    amplitude = 0.45f;
+    persistence = 0.85f;
+    octaveSetter = 9;
     magicNumber1 = 1;
     magicNumber2 = 1;
 }
@@ -33,40 +34,48 @@ void ShaderPerlinNoise::update()
 
 void ShaderPerlinNoise::action1()
 {
+    fprintf(stderr, "Changing amplitude to %f\n", amplitude);
     amplitude += 0.05f;
 }
 
 void ShaderPerlinNoise::action2()
 {
+    fprintf(stderr, "Changing amplitude to %f\n", amplitude);
     amplitude -= 0.05f;
 }
 
 void ShaderPerlinNoise::action3()
 {
+    fprintf(stderr, "Changing octaveCount to %d\n", octaveSetter);
     octaveSetter++;
 }
 
 void ShaderPerlinNoise::action4()
 {
+    fprintf(stderr, "Changing octaveCount to %d\n", octaveSetter);
     octaveSetter--;
 }
 
 void ShaderPerlinNoise::action5()
 {
+    fprintf(stderr, "Changing amplitude to %f\n", amplitude);
     amplitude += 0.5;
 }
 
 void ShaderPerlinNoise::action6()
 {
+    fprintf(stderr, "Changing amplitude to %f\n", amplitude);
     amplitude -= 0.5;
 }
 
 void ShaderPerlinNoise::action7()
 {
+    fprintf(stderr, "Changing persistence to %f\n", persistence);
     persistence += 0.05;
 }
 
 void ShaderPerlinNoise::action8()
 {
+    fprintf(stderr, "Changing persistence to %f\n", persistence);
     persistence -= 0.05;
 }

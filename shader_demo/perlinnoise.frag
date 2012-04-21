@@ -71,6 +71,8 @@ void main( void )
     float persistence_copy = persistence;
     float amplitude_copy = amplitude;
     float totalAmplitude = 0.0f;
+    float n;
+    vec4 col;
   
     for (int i = 0; i < octaveSetter && i < 20; i++)
     {
@@ -89,7 +91,7 @@ void main( void )
     // Normalize the noise
     //finalColor = finalColor / totalAmplitude;
     
-    float n = finalColor;
-    vec4 col = vec4(n,n,n,1.0f);
+    n = finalColor;
+    col = vec4(n,n,n,1.0f);
     gl_FragColor = v_color * col;
 }
