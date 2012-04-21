@@ -172,10 +172,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\heightmap.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\inputmanager.cpp"
 				>
 			</File>
@@ -361,6 +357,10 @@
 			</File>
 			<File
 				RelativePath=".\perlinnoise.frag"
+				>
+			</File>
+			<File
+				RelativePath=".\perlinnoise.vert"
 				>
 			</File>
 			<File

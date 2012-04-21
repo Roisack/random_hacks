@@ -1,9 +1,11 @@
-uniform sampler2D tex0;
+uniform sampler2D baseNoise;
 uniform float persistence;
 uniform float amplitude;
 uniform int octaveSetter;
 uniform int magicNumber1;
 uniform int magicNumber2;
+uniform int size_x;
+uniform int size_y;
 
 // This file has been modified from the original source by Stefan Gustavson
 
@@ -527,31 +529,68 @@ float snoise(vec4 P) {
   return 27.0 * (n0 + n1 + n2 + n3 + n4);
 }
 
+float interpolate(float x0, float x1, float alpha)
+{
+   float interpolation = x0 * (1.0 - alpha) + alpha * x1; // what the eff is with these GLSL duplicate variable names?
+   return interpolation;
+}
+
+float noise2(vec2 input_coords, int octave)
+{
+    float out1 = 0.0f;
+    float i = input_coords.s;   // 0...1
+    float j = input_coords.t;   // 0...1
+    
+    // Get noise location related to the native texture size
+    int i_resize = int(input_coords.s * size_x);    // 0...1024
+    int j_resize = int(input_coords.t * size_y);    // 0...1024
+    
+    int samplePeriod = 1 << octave;         // 2^n
+    float frequency = 1024.0f / samplePeriod;  // 1/n
+    
+    // Get 4 samples, gradients
+    // Each gradient will have to be in the original texture resolution area
+    // Buuuut... baseNoise must be sampled using the original gl tex coords
+    
+    float sample_i0 = int(i_resize / samplePeriod) * samplePeriod;  // MEMO: Figure out the magic here. Value will be 1024/(2^n)
+    float sample_i0_gl = (float(i) / samplePeriod) * samplePeriod;
+    float sample_i1 = int(sample_i0 + samplePeriod) % size_x;
+    float sample_i1_gl = sample_i1/1024;
+    
+    float horizontal_blend = (i_resize - sample_i0) * frequency;
+    float horizontal_blend_gl = (i - sample_i0_gl) * frequency;
+    
+    float sample_j0 = (j_resize / samplePeriod) * samplePeriod;
+    float sample_j0_gl = (float(j) / samplePeriod) * samplePeriod;
+    float sample_j1 = int(sample_j0 + samplePeriod) % size_y;
+    float sample_j1_gl = sample_j1/1024;
+    
+    float vertical_blend = (j_resize - sample_j0) * frequency;
+    float vertical_blend_gl = (j - sample_j0_gl) * frequency;
+    
+    float top = interpolate(texture2D(baseNoise, vec2(sample_i0_gl,sample_j0_gl)).r, texture2D(baseNoise, vec2(sample_i1_gl, sample_j0_gl)).r, horizontal_blend_gl);
+    float bottom = interpolate(texture2D(baseNoise, vec2(sample_i0_gl, sample_j1_gl)).r, texture2D(baseNoise, vec2(sample_i1_gl, sample_j1_gl)).r, horizontal_blend_gl);
+    out1 = interpolate(top, bottom, vertical_blend_gl);
+    
+    float temp = texture2D(baseNoise, vec2(sample_i1_gl, sample_j1_gl)).r;
+    
+    return out1;
+}
 
 void main( void )
 {
-
-  /* These lines test, in order, 2D classic noise, 2D simplex noise,
-   * 3D classic noise, 3D simplex noise, 4D classic noise, and finally
-   * 4D simplex noise.
-   * Everything but the 4D simpex noise will make some uniform
-   * variables remain unused and be optimized away by the compiler,
-   * so OpenGL will fail to bind them. It's safe to ignore these
-   * warnings from the C program. The program is designed to work anyway.
-   */
-  
   float noiseOctaves[20];
   float persistence_copy = persistence;
   float amplitude_copy = amplitude;
   
   for (int i = 0; i < octaveSetter && i < 20; i++)
   {
-    noiseOctaves[i] = snoise(v_texCoord2D.st * i*i + magicNumber1 - texture2D(tex0, v_texCoord2D.st).r*magicNumber2 );
+    noiseOctaves[i] = noise2(v_texCoord2D.st, i);
   }
   
   float finalColor = 0.0f;
   
-  for (int i = 0; i < octaveSetter && i < 20; i++)
+  for (int i = 0; i < octaveSetter && i < 200; i++)
   {
     amplitude_copy *= persistence_copy;
     finalColor += noiseOctaves[i] * amplitude;
@@ -566,8 +605,10 @@ void main( void )
   //float n = snoise(vec4(4.0 * v_texCoord3D.xyz, 0.5 * time));
   vec4 col = vec4(n,n,n,1.0f);
   col.r = n;
-  col.g = n*sin(time) - v_texCoord2D.t*3;
-  col.b = (col.r + col.g)/2*cos(time/3) - v_texCoord2D.s*3;
+  //col.g = n*sin(time) - v_texCoord2D.t*3;
+  //col.b = (col.r + col.g)/2*cos(time/3) - v_texCoord2D.s*3;
   //gl_FragColor = v_color * vec4(0.5 + 0.5 * vec3(n, n, n), 1.0);
+  col.g = col.r;
+  col.b = col.r;
   gl_FragColor = v_color * col;
 }
