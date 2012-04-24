@@ -31,6 +31,16 @@ public:
                 std::vector<double> normals, Vector3 location,
                 float rotation, float scale);
     void calculateLights();
+
+    void moveForwards();
+    void moveBackwards();
+    void moveRight();
+    void moveLeft();
+    void panLeft();
+    void panRight();
+    void panUp();
+    void panDown();
+
     Vector3 getCameraLocation() { return eye; }
     float getNativeHeight() { return nativeHeight; }
 };

@@ -46,6 +46,9 @@ void Room::operate()
 
         for (modelIterator = modelMap.begin(); modelIterator != modelMap.end(); modelIterator++)
             (*modelIterator).second->render();
+
+        for (terrainIterator = terrainMap.begin(); terrainIterator != terrainMap.end(); terrainIterator++)
+            (*terrainIterator).second->render();
 	} else if (roomType == 3) // Cinematics
     {
         renderer.moveCamera(0, 0, renderer.getNativeHeight());
@@ -132,7 +135,24 @@ void Room::removeModel(std::string name)
         modelMap.erase(modelIterator);
     } else
     {
-        fprintf(stderr, "No model found to delete! Sprite: %s, Room: %d", name.c_str(), roomNumber);
+        fprintf(stderr, "No model found to delete! Sprite: %s, Room: %d\n", name.c_str(), roomNumber);
+    }
+}
+
+void Room::addTerrain(std::string name, boost::shared_ptr<Terrain> t)
+{
+    terrainMap[name] = t;
+}
+
+void Room::removeTerrain(std::string name)
+{
+    terrainIterator = terrainMap.find(name.c_str());
+    if (terrainIterator != terrainMap.end())
+    {
+        terrainMap.erase(terrainIterator);
+    } else
+    {
+        fprintf(stderr, "No terrain found to delete! Terrain %s, Room %d\n", name.c_str(), roomNumber);
     }
 }
 

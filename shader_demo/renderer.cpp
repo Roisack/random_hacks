@@ -35,6 +35,42 @@ void Renderer::moveCamera(float coord_x, float coord_y, float coord_z)
     center.z = 0;
 }
 
+void Renderer::moveForwards()
+{
+    eye.x += 10.0f;
+}
+
+void Renderer::moveBackwards()
+{
+    eye.x -= 10.0f;
+}
+
+void Renderer::moveLeft()
+{
+    eye.y += 10.0f;
+}
+
+void Renderer::moveRight()
+{
+    eye.y -= 10.0f;
+}
+
+void Renderer::panUp()
+{
+}
+
+void Renderer::panDown()
+{
+}
+
+void Renderer::panLeft()
+{
+}
+
+void Renderer::panRight()
+{
+}
+
 void Renderer::clearScreen()
 {
     glClearColor(0.0,0.0,0.0,0);
@@ -46,6 +82,7 @@ void Renderer::clearScreen()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     
+    //moveCamera(sin(manager.getTime() / 3)*150, sin(manager.getTime() / 5)*150, 100);
     gluLookAt(	eye.x, eye.y, eye.z,
                 center.x, center.y, center.z,
                 0,1,0

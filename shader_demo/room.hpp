@@ -4,11 +4,12 @@
 #include <boost/shared_ptr.hpp>
 #include "sprite.hpp"
 #include "object3d.hpp"
+#include "terrain.hpp"
 #include <map>
 
 typedef std::map<std::string, boost::shared_ptr<Sprite> > spriteContainer;
 typedef std::map<std::string, boost::shared_ptr<Object3D> > modelContainer;
-
+typedef std::map<std::string, boost::shared_ptr<Terrain> > terrainContainer;
 class Room
 {
 private:
@@ -21,6 +22,9 @@ private:
 
     modelContainer modelMap;
     modelContainer::iterator modelIterator;
+
+    terrainContainer terrainMap;
+    terrainContainer::iterator terrainIterator;
 
     double roomStartTime;
     bool firstRun;
@@ -51,8 +55,12 @@ public:
     void addModel(std::string name, boost::shared_ptr<Object3D> m);
     void removeModel(std::string name);
 
+    void addTerrain(std::string name, boost::shared_ptr<Terrain> t);
+    void removeTerrain(std::string name);
+
     boost::shared_ptr<Sprite> findSprite(std::string f);
     boost::shared_ptr<Object3D> findModel(std::string f);
+    boost::shared_ptr<Terrain> findTerrain(std::string f);
 
     std::string getName() { return name; }
     int getType() { return roomType; }

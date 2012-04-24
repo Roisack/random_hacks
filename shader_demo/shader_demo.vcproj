@@ -240,6 +240,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\terrain.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\toolbox.cpp"
 				>
 			</File>
@@ -311,6 +315,10 @@
 			</File>
 			<File
 				RelativePath=".\sprite.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\terrain.hpp"
 				>
 			</File>
 			<File

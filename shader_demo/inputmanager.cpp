@@ -1,4 +1,5 @@
 #include "inputmanager.hpp"
+#include "renderer.hpp"
 #include "manager.hpp"
 
 #ifdef WIN32
@@ -104,6 +105,30 @@ void Inputmanager::checkInput()
                             break;
                         case SDLK_i:
                             currentRoom->shaderAction8();
+                            break;
+                        case SDLK_UP:
+                            renderer.moveForwards();
+                            break;
+                        case SDLK_DOWN:
+                            renderer.moveBackwards();
+                            break;
+                        case SDLK_LEFT:
+                            renderer.moveLeft();
+                            break;
+                        case SDLK_RIGHT:
+                            renderer.moveRight();
+                            break;
+                        case SDLK_h:
+                            renderer.panUp();
+                            break;
+                        case SDLK_j:
+                            renderer.panDown();
+                            break;
+                        case SDLK_n:
+                            renderer.panLeft();
+                            break;
+                        case SDLK_m:
+                            renderer.panRight();
                             break;
                     }
                 break;
