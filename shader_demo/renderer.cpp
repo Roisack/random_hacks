@@ -149,31 +149,11 @@ void Renderer::renderObject(    GLenum primitiveType, int indiceCount, GLenum da
 
 void Renderer::calculateLights()
 {
-    glShadeModel(GL_SMOOTH);
-    glColor3f(0.5, 0.5, 0.5);
-    GLfloat whiteSpecularMaterial[] = {0.2, 0.2, 0.2};
-    GLfloat whiteEmissiveMaterial[] = {0.2, 0.2, 0.2};
-    GLfloat mShininess[] = {32};
-    GLfloat white2DiffuseMaterial[] = {0.3, 0.3, 0.3};
-    float mcolor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-    
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHTING);
-    GLfloat ambientLight[] = { 0.9f, 0.9f, 0.9f, 0.9f };
-    GLfloat diffuseLight[] = { 0.9f, 0.9f, 0.9f, 0.9f };
-    GLfloat specularLight[] = { 0.9f, 0.9f, 0.9f, 0.9f };
-    float location1 = sin(manager.getTime())*10;
-    float location2 = cos(manager.getTime())*10;
-    GLfloat position[] = { location1, location2, 20 };
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
-    glLightfv(GL_LIGHT0, GL_POSITION, position);
-    
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mcolor);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, white2DiffuseMaterial);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, whiteSpecularMaterial);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mShininess);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, whiteEmissiveMaterial);
-    glEnable(GL_LIGHT0);
+	GLfloat ambientColor[] = {0.4f, 0.4f, 0.4f, 1.0f};
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
+	
+	GLfloat lightColor0[] = {0.6f, 0.6f, 0.6f, 1.0f};
+	GLfloat lightPos0[] = {-0.5f, 0.8f, 0.1f, 0.0f};
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);
 }

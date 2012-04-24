@@ -175,8 +175,14 @@ void Terrain::loadTerrain(int imageWidth, int imageHeight, std::string filename,
 
 void Terrain::render()
 {
-    float scale = 5.0f / max(w-1, l-1);
-    glScalef(10,10,10);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_NORMALIZE);
+	glShadeModel(GL_SMOOTH);
+
+    glScalef(1,1,1);
     glTranslatef(-float(w)/2, 0.0f, -float(l)/2);
     glColor3f(0.3f, 0.9f, 0.1f);
     for (int z = 0; z < l-1; z++)
