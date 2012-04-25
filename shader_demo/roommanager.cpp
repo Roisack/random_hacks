@@ -50,7 +50,7 @@ bool RoomManager::init()
 
     //room1Ptr->addSprite("shader_surface", shader_surface);
 
-    temp = "data/2D/heightMap_sphere_128x128.png";
+    temp = "data/2D/heightMap_terrain_128x128.png";
     boost::shared_ptr<Terrain> terrainPtr = boost::shared_ptr<Terrain>(new Terrain(128, 128, "data/2D/heightMap_sphere_128x128.png", 100.0f));
     room1Ptr->addTerrain("First Terrain", terrainPtr);
 
