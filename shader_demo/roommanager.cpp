@@ -38,21 +38,20 @@ bool RoomManager::init()
     roomVector.push_back(introRoom);
 
     std::string temp = "data/2D/stars_1024x1024.png";
-    //boost::shared_ptr<Sprite> shader_surface(new Sprite(temp));
+    boost::shared_ptr<Sprite> shader_surface(new Sprite(temp));
 
     //boost::shared_ptr<Shader> shaderPtr(new Shader("simple.vert", "simple.frag"));
-    //boost::shared_ptr<ShaderInterference> shaderPtr(new ShaderInterfence("interference.vert", "interference.frag"));
-    //boost::shared_ptr<ShaderPerlinNoise> shaderPtr(new ShaderPerlinNoise("perlinNoise.vert", "perlinNoise.frag"));
+    boost::shared_ptr<ShaderInterference> shaderPtr(new ShaderInterference("interference.vert", "interference.frag"));
     //boost::shared_ptr<ShaderNormalMap> shaderPtr(new ShaderNormalMap("normalMap.vert", "normalMap.frag"));
     //boost::shared_ptr<ShaderPerlinNoise> shaderPtr(new ShaderPerlinNoise("perlinnoise.vert", "perlinnoise.frag"));
     //boost::shared_ptr<ShaderPlasma> shaderPtr(new ShaderPlasma("plasma.vert", "plasma.frag"));
-    //shader_surface->addShader(shaderPtr);
+    shader_surface->addShader(shaderPtr);
 
-    //room1Ptr->addSprite("shader_surface", shader_surface);
+    room1Ptr->addSprite("shader_surface", shader_surface);
 
     temp = "data/2D/heightMap_terrain_128x128.png";
-    boost::shared_ptr<Terrain> terrainPtr = boost::shared_ptr<Terrain>(new Terrain(128, 128, "data/2D/heightMap_sphere_128x128.png", 100.0f));
-    room1Ptr->addTerrain("First Terrain", terrainPtr);
+    //boost::shared_ptr<Terrain> terrainPtr = boost::shared_ptr<Terrain>(new Terrain(128, 128, "data/2D/heightMap_sphere_128x128.png", 100.0f));
+    //room1Ptr->addTerrain("First Terrain", terrainPtr);
 
     arenaRoom = room1Ptr;
     roomVector.push_back(room1Ptr);
