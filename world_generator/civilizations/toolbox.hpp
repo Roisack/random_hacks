@@ -6,6 +6,9 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+#include <algorithm>
+#include "creature.hpp"
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #ifdef WIN32
@@ -52,6 +55,17 @@ public:
     void clearFloatArray3D(float*** arr, int sizeX, int sizeY, int sizeZ);
     void deleteFloatArray3D(float*** arr, int sizeX, int sizeY);
 };
+
+
+// Performs a std::find for a vector of generic type
+// Returns an iterator pointing to the element if found, else the end of the vector
+template <class T>
+typename std::vector<T>::iterator Toolbox::searchElementFromVector(std::vector<T> v, T toFind)
+{
+    typename std::vector<T>::iterator iter;
+    iter = std::find(v.begin(), v.end(), toFind);
+    return iter;
+}
 
 extern Toolbox tbox;
 

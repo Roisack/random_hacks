@@ -8,6 +8,7 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
+#include <memory>
 
 Toolbox tbox;
 
@@ -221,16 +222,6 @@ std::string Toolbox::combineStringAndInts(std::string in1, int in2, int in3)
     buffer << in3;
     out = buffer.str();
     return out;
-}
-
-// Performs a linear search for a vector of generic type
-// Returns an iterator pointing to the element if found, else the end of the vector
-template <class T>
-typename std::vector<T>::iterator Toolbox::searchElementFromVector(std::vector<T> v, T toFind)
-{
-    typename std::vector<T>::iterator iter;
-    iter = std::find(v.begin(), v.end(), toFind);
-    return iter;
 }
 
 // Returns a two dimensional array of floats

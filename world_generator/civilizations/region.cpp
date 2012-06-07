@@ -16,13 +16,14 @@ Region::~Region()
 void Region::addFauna(std::shared_ptr<Creature> c)
 {
     // Add new fauna if it doesn't exist already
-    if (tbox.searchElementFromVector(fauna, c) != fauna.end())
+    if (tbox.searchElementFromVector(fauna, c) == fauna.end())
         fauna.push_back(c);
 }
 
 void Region::addFlora(std::shared_ptr<Flora> f)
 {
-    flora.push_back(f);
+    if (tbox.searchElementFromVector(flora, f) == flora.end())
+        flora.push_back(f);
 }
 
 void Region::setTemperature(float t)
