@@ -42,8 +42,8 @@ public:
     std::string combineStringAndInt(std::string in1, int in2);
     std::string combineStringAndInts(std::string in1, int in2, int in3);
 
-    template <typename T>
-    typename std::vector<T>::iterator searchElementFromVector(std::vector<typename T> v, T toFind);
+    template <class T>
+    typename std::vector<T>::iterator searchElementFromVector(std::vector<T> v, T toFind);
 
     float** giveFloatArray2D(int sizeX, int sizeY);
     float*** giveFloatArray3D(int sizeX, int sizeY, int sizeZ);

@@ -225,7 +225,7 @@ std::string Toolbox::combineStringAndInts(std::string in1, int in2, int in3)
 
 // Performs a linear search for a vector of generic type
 // Returns an iterator pointing to the element if found, else the end of the vector
-template <typename T>
+template <class T>
 typename std::vector<T>::iterator Toolbox::searchElementFromVector(std::vector<T> v, T toFind)
 {
     typename std::vector<T>::iterator iter;
