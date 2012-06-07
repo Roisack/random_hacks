@@ -2,7 +2,7 @@
 #include "creature.hpp"
 #include "flora.hpp"
 #include "toolbox.hpp"
-#include <algorithm>
+
 Region::Region()
 {
     size_x = 32;
@@ -16,7 +16,7 @@ Region::~Region()
 void Region::addFauna(std::shared_ptr<Creature> c)
 {
     // Add new fauna if it doesn't exist already
-//    if (tbox.searchElementFromVector(fauna, c))
+    if (tbox.searchElementFromVector(fauna, c) != fauna.end())
         fauna.push_back(c);
 }
 
