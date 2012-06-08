@@ -1,11 +1,41 @@
 #include "creature.hpp"
+#include <stdio.h>
 
-Creature::Creature()
+Creature::Creature(long t)
 {
+    fprintf(stderr, "New creature born\n");
+    birthTime = t;
 }
 
 Creature::~Creature()
 {
+    die();
+}
+
+void Creature::advanceTime(long t)
+{
+}
+
+void Creature::die()
+{
+    fprintf(stderr, "Creature is dying\n");
+    region = NULL;
+    active = false;
+}
+
+void Creature::setCoordX(int x)
+{
+    coord_x = x;
+}
+
+void Creature::setCoordY(int y)
+{
+    coord_y = y;
+}
+
+void Creature::setRegion(Region* r)
+{
+    region = r;
 }
 
 void Creature::setMass(float m)
@@ -23,7 +53,7 @@ void Creature::setWidth(float w)
     width = w;
 }
 
-void Creature::setAge(float a)
+void Creature::setAge(long a)
 {
     age = a;
 }
@@ -63,6 +93,21 @@ void Creature::setBodyMaterial(std::string s)
     bodyMaterial = s;
 }
 
+int Creature::getCoordX()
+{
+    return coord_x;
+}
+
+int Creature::getCoordY()
+{
+    return coord_y;
+}
+
+Region* Creature::getRegion()
+{
+    return region;
+}
+
 float Creature::getMass()
 {
     return mass;
@@ -78,7 +123,7 @@ float Creature::getWidth()
     return width;
 }
 
-float Creature::getAge()
+long Creature::getAge()
 {
     return age;
 }

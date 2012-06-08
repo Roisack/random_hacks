@@ -4,12 +4,17 @@
 // Flora means plant. Like a cactus
 
 #include <string>
+#include <memory>
+
+class Region;
 
 class Flora
 {
 private:
     std::string type;
     std::string name;
+    int coord_x;
+    int coord_y;
     float height;
     float width;
     float mass;
@@ -18,10 +23,26 @@ private:
     float minHumidity; // How humid must the region be, at least
     float maxHumidity; // How humid can the region be, at max
     float spreadRate;  // How fast does the plant reproduce
+    float lastReproduced;
+    float life; // hitpoints
+    long expectedLifeTime;
+    long birthTime;
+    long lastEaten;
+    int eatDelay;
+    float requiredSustenance;
+    bool alive;
+    Region* region; // In which region does this plant live
 public:
-    Flora();
+    Flora(long t);
     ~Flora();
 
+    void advanceTime(long t);
+    void takeDamage(float d);
+    void die();
+
+    void setCoordX(int x);
+    void setCoordY(int y);
+    void setRegion(Region* r);
     void setMass(float m);
     void setHeight(float h);
     void setWidth(float h);
@@ -33,6 +54,9 @@ public:
     void setMaxHumidity(float h);
     void setSpreadRate(float r);
 
+    int getCoordX();
+    int getCoordY();
+    Region* getRegion();
     float getHeight();
     float getWidth();
     float getMass();
@@ -43,6 +67,7 @@ public:
     float getMinHumidity();
     float getMaxHumidity();
     float getSpreadRate();
+    float getRequiredSustenance();
 };
 
 #endif

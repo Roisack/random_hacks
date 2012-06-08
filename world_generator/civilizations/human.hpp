@@ -7,7 +7,7 @@ class Human : public Creature
 {
 private:
 public:
-    Human();
+    Human(float t);
     ~Human();
 };
 

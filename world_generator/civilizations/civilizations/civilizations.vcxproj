@@ -85,6 +85,7 @@
     <ClCompile Include="..\human.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\region.cpp" />
+    <ClCompile Include="..\tile.cpp" />
     <ClCompile Include="..\toolbox.cpp" />
     <ClCompile Include="..\world.cpp" />
   </ItemGroup>
@@ -97,6 +98,7 @@
     <ClInclude Include="..\house.hpp" />
     <ClInclude Include="..\human.hpp" />
     <ClInclude Include="..\region.hpp" />
+    <ClInclude Include="..\tile.hpp" />
     <ClInclude Include="..\toolbox.hpp" />
     <ClInclude Include="..\world.hpp" />
   </ItemGroup>

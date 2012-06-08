@@ -1,6 +1,6 @@
 #include "human.hpp"
 
-Human::Human() : Creature()
+Human::Human(float t) : Creature(t)
 {
     heads = 1;
     legs = 2;

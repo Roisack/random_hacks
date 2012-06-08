@@ -1,6 +1,6 @@
 #include "goblin.hpp"
 
-Goblin::Goblin() : Creature()
+Goblin::Goblin(float t) : Creature(t)
 {
     heads = 1;
     legs = 2;

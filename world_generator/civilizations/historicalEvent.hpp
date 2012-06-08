@@ -7,14 +7,14 @@
 class HistoricalEvent
 {
 private:
-    float date;
+    long date;
     std::vector<std::string> messages;
 public:
-    HistoricalEvent(float d, std::vector<std::string> msg);
+    HistoricalEvent(long d, std::vector<std::string> msg);
     ~HistoricalEvent();
 
     std::vector<std::string> getMessages();
-    float getDate();
+    long getDate();
 };
 
 #endif

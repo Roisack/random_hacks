@@ -7,7 +7,7 @@ class Goblin : public Creature
 {
 private:
 public:
-    Goblin();
+    Goblin(float t);
     ~Goblin();
 };
 

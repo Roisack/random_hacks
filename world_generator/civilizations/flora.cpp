@@ -1,11 +1,82 @@
 #include "flora.hpp"
+#include "region.hpp"
+#include <stdio.h>
 
-Flora::Flora()
+Flora::Flora(long t)
 {
+    fprintf(stderr, "New plant born\n");
+    alive = true;
+    birthTime = t;
 }
 
 Flora::~Flora()
 {
+}
+
+void Flora::advanceTime(long t)
+{
+    if (region->getTemperature() < minTemperature || region->getTemperature() > maxTemperature
+        || region->getHumidity() < minHumidity || region->getHumidity() > maxHumidity)
+    {
+        takeDamage(life/2);
+    }
+    if (t > birthTime + expectedLifeTime)
+    {
+        takeDamage(life/2);
+    }
+
+    if (t > lastReproduced + spreadRate)
+    {
+        lastReproduced = t;
+        region->spreadFlora(this);
+    }
+
+    if (t > lastEaten + eatDelay)
+    {
+        lastEaten = t;
+
+        // If there is no food, take damage and shorten food request time
+        float receivedFood = region->givePlantFood(this);
+        if (receivedFood < requiredSustenance)
+        {
+            takeDamage(0.01f);
+
+            // How large % did we get?
+            float percentage = receivedFood / requiredSustenance;
+
+            // 100% == Next food time is as usual
+            // 50% == Ask food when half of the usual time has passed
+            lastEaten -= eatDelay*percentage;
+        }
+    }
+}
+
+void Flora::takeDamage(float d)
+{
+    life -= d;
+    if (life <= 0)
+        die();
+}
+
+void Flora::die()
+{
+    fprintf(stderr, "Plant is dying\n");
+    alive = false;
+}
+
+void Flora::setCoordX(int x)
+{
+    coord_x = x;
+}
+
+void Flora::setCoordY(int y)
+{
+    coord_y = y;
+}
+
+void Flora::setRegion(Region* r)
+{
+    region = r;
 }
 
 void Flora::setMass(float m)
@@ -58,6 +129,21 @@ void Flora::setSpreadRate(float r)
     spreadRate = r;
 }
 
+int Flora::getCoordX()
+{
+    return coord_x;
+}
+
+int Flora::getCoordY()
+{
+    return coord_y;
+}
+
+Region* Flora::getRegion()
+{
+    return region;
+}
+
 float Flora::getWidth()
 {
     return width;
@@ -106,4 +192,9 @@ float Flora::getMaxHumidity()
 float Flora::getSpreadRate()
 {
     return spreadRate;
+}
+
+float Flora::getRequiredSustenance()
+{
+    return requiredSustenance;
 }
