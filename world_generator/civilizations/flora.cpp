@@ -4,7 +4,6 @@
 
 Flora::Flora(long t)
 {
-    fprintf(stderr, "New plant born\n");
     alive = true;
     birthTime = t;
     life = 100.0f;
@@ -26,7 +25,7 @@ void Flora::advanceTime(long t)
     }
     if (t > birthTime + expectedLifeTime)
     {
-        takeDamage(life/2);
+        takeDamage(life);
     }
 
     if (t > lastReproduced + spreadRate)
@@ -43,14 +42,14 @@ void Flora::advanceTime(long t)
         float receivedFood = region->givePlantFood(this);
         if (receivedFood < requiredSustenance)
         {
-            takeDamage(0.01f);
+            takeDamage(5.0f);
 
             // How large % did we get?
             float percentage = receivedFood / requiredSustenance;
 
             // 100% == Next food time is as usual
             // 50% == Ask food when half of the usual time has passed
-            lastEaten -= eatDelay*percentage;
+            lastEaten += (-1*eatDelay) + (eatDelay*percentage);
         }
     }
 }
@@ -58,6 +57,8 @@ void Flora::advanceTime(long t)
 void Flora::takeDamage(float d)
 {
     life -= d;
+    if (life < 50)
+        int b =5;
     if (life <= 1)
         die();
 }
@@ -218,4 +219,9 @@ void Flora::setEatDelay(long t)
 long Flora::getEatDelay()
 {
     return eatDelay;
+}
+
+bool Flora::getAlive()
+{
+    return alive;
 }

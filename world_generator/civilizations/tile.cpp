@@ -38,6 +38,8 @@ float Tile::takePlantFood(float quantity)
     else
         output = quantity;
     plantFoodValue -= quantity;
+    if (quantity <= 0)
+        quantity = 0;
     return output;
 }
 

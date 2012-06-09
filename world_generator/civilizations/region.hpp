@@ -25,6 +25,9 @@ private:
     std::vector<std::shared_ptr<Creature> > fauna; // Various animals in the area
     std::vector<std::shared_ptr<Flora> > flora; // Various plants in the area
     std::vector<std::shared_ptr<Flora> > flora_toSpread;    // Temp container for new flora
+    
+    long lastProduction;  // When did the region last add new resources for plants
+    int productionDelay;
 public:
     Region();
     ~Region();
@@ -36,6 +39,7 @@ public:
     float produceNewPlantFood();
     void createPlantLife();
     void addPendingFlora();
+    void removeDeadPlants();
 
     void setWorld(World* world);
     void setActive(bool b);

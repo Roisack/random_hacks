@@ -131,6 +131,7 @@ void World::reportNewCreature()
 void World::reportDeadCreature()
 {
     currentCreatures--;
+    pastCreatures++;
 }
 
 void World::reportNewPlant()
@@ -141,4 +142,5 @@ void World::reportNewPlant()
 void World::reportDeadPlant()
 {
     currentPlants--;
+    pastPlants++;
 }

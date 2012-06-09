@@ -19,6 +19,8 @@ Region::Region()
             regionMap[i][j] = new Tile(i,j);
         }
     }
+    lastProduction = 0;
+    productionDelay = 500;
 }
 
 Region::~Region()
@@ -48,9 +50,22 @@ void Region::createPlantLife()
         f->setHeight(0.2f);
         f->setWidth(0.1f);
         f->setType("shrub");
-        f->setRequiredSustenance(1.2f);
+        f->setRequiredSustenance(5.0f);
         f->setEatDelay(100);
         addFlora(f);
+    }
+}
+
+void Region::removeDeadPlants()
+{
+    std::vector<std::shared_ptr<Flora> >::iterator grim_reaper;
+    grim_reaper = flora.begin();
+    while (grim_reaper != flora.end())
+    {
+        if ((*grim_reaper)->getAlive() == false)
+            grim_reaper = flora.erase(grim_reaper);
+        else
+            grim_reaper++;
     }
 }
 
@@ -67,32 +82,31 @@ void Region::reportDeadCreatureToWorld()
 void Region::advanceTime(float t)
 {
     // Add new resources
-    for (int i = 0; i < size_x; i++)
+    if (t > lastProduction + productionDelay)
     {
-        for (int j = 0; j < size_y; j++)
+        for (int i = 0; i < size_x; i++)
         {
-            float regrowth = produceNewPlantFood();
-            regionMap[i][j]->addPlantFood(regrowth);
+            for (int j = 0; j < size_y; j++)
+            {
+                float regrowth = produceNewPlantFood();
+                regionMap[i][j]->addPlantFood(regrowth);
+            }
         }
+        lastProduction = t;
     }
 
+    fprintf(stderr, "About to remove dead plants\n");
+    removeDeadPlants();
+    fprintf(stderr, "done\n");
     std::vector<std::shared_ptr<Creature> >::iterator iter;
     for (iter = fauna.begin(); iter != fauna.end(); iter++)
     {
         (*iter)->advanceTime(t);
     }
 
-    int b = 0;
     std::vector<std::shared_ptr<Flora> >::iterator iter2;
     for (iter2 = flora.begin(); iter2 != flora.end(); iter2++)
     {
-        if (b == 66)
-        {
-            int a = flora.size();;
-        }
-        b++;
-        if (b % 100 == 0)
-            fprintf(stderr, "%ld\n", b);
         (*iter2)->advanceTime(t);
     }
 
@@ -168,13 +182,10 @@ void Region::addFauna(std::shared_ptr<Creature> c)
 
 void Region::addFlora(std::shared_ptr<Flora> f)
 {
-    if (tbox.searchElementFromVector((std::vector<std::shared_ptr<Flora> > &)flora, (std::shared_ptr<Flora> &)f) == flora.end())
-    {
-        f->setRegion(this);
-        flora.push_back(f);
-        regionMap[f->getCoordX()][f->getCoordY()]->addFlora(f);
-        world->reportNewPlant();
-    }
+    f->setRegion(this);
+    flora.push_back(f);
+    regionMap[f->getCoordX()][f->getCoordY()]->addFlora(f);
+    world->reportNewPlant();
 }
 
 // When a plant reproduces, it spreads a new instance of itself with some modifications nearby

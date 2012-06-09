@@ -71,6 +71,7 @@ public:
     float getSpreadRate();
     float getRequiredSustenance();
     long getEatDelay();
+    bool getAlive();
 };
 
 #endif
