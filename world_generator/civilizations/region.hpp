@@ -24,6 +24,7 @@ private:
     float humidity; // Percentage
     std::vector<std::shared_ptr<Creature> > fauna; // Various animals in the area
     std::vector<std::shared_ptr<Flora> > flora; // Various plants in the area
+    std::vector<std::shared_ptr<Flora> > flora_toSpread;    // Temp container for new flora
 public:
     Region();
     ~Region();
@@ -34,11 +35,14 @@ public:
     float givePlantFood(Flora* f);
     float produceNewPlantFood();
     void createPlantLife();
+    void addPendingFlora();
 
     void setWorld(World* world);
     void setActive(bool b);
     void addFauna(std::shared_ptr<Creature> c);
     void addFlora(std::shared_ptr<Flora> f);
+    void reportDeadPlantToWorld();
+    void reportDeadCreatureToWorld();
     void setTemperature(float t);
     void setHumidity(float h);
     void setCoordX(int x);

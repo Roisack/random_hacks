@@ -53,6 +53,8 @@ public:
     void setMinHumidity(float h);
     void setMaxHumidity(float h);
     void setSpreadRate(float r);
+    void setRequiredSustenance(float r);
+    void setEatDelay(long t);
 
     int getCoordX();
     int getCoordY();
@@ -68,6 +70,7 @@ public:
     float getMaxHumidity();
     float getSpreadRate();
     float getRequiredSustenance();
+    long getEatDelay();
 };
 
 #endif

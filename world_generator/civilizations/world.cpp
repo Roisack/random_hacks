@@ -6,6 +6,13 @@ World::World()
     fprintf(stderr, "World is alive\n");
     alive = true;
     world_time = 0;
+    currentCreatures = 0;
+    pastCreatures = 0;
+    currentPlants = 0;
+    pastPlants = 0;
+    currentCivilizations = 0;
+    maxCreaturesInWorld = 100000000; // 100 million
+    maxPlantsInWorld = 100000000;   // 100 million
 }
 
 World::~World()
@@ -16,6 +23,7 @@ World::~World()
 void World::addRegion(int x, int y, int t, int h)
 {
     std::shared_ptr<Region> r = std::shared_ptr<Region>(new Region());
+    r->setWorld((World*)this);
     r->setCoordX(x);
     r->setCoordY(y);
     r->setTemperature(t);
@@ -30,6 +38,7 @@ void World::live()
     while (alive)
     {
         advanceTime();
+        fprintf(stderr, "World time: %ld\n", world_time);
     }
 }
 
@@ -45,6 +54,24 @@ void World::die()
 void World::advanceTime()
 {
     world_time++;
+    if (world_time % 100 == 0)
+        report();
+    std::vector<std::shared_ptr<Region> >::iterator iter;
+    for (iter = regions.begin(); iter != regions.end(); iter++)
+        (*iter)->advanceTime(world_time);
+
+    std::vector<std::shared_ptr<Civilization> >::iterator iter2;
+    for (iter2 = civilizations.begin(); iter2 != civilizations.end(); iter2++)
+        (*iter)->advanceTime(world_time);
+}
+
+void World::report()
+{
+    fprintf(stderr, "==========================================================\n");
+    fprintf(stderr, "Civilizations\tCreatures\tPlants\tpastCreatures\tpastPlants\n");
+    fprintf(stderr, "%d\t\t\%d\t\t\%d\t\t\%d\t\t\%d\n", currentCivilizations, currentCreatures, currentPlants, pastCreatures, pastPlants);
+    fprintf(stderr, "==========================================================\n");
+    int a = 5;
 }
 
 void World::setTime(long t)
@@ -70,4 +97,48 @@ unsigned long World::getCurrentCreatures()
 unsigned long World::getPastCreatures()
 {
     return pastCreatures;
+}
+
+unsigned long World::getCurrentPlants()
+{
+    return currentPlants;
+}
+
+unsigned long World::getPastPlants()
+{
+    return pastPlants;
+}
+
+bool World::allowedToSpawnCreature()
+{
+    if (currentCreatures > maxCreaturesInWorld)
+        return false;
+    return true;
+}
+
+bool World::allowedToSpawnPlant()
+{
+    if (currentPlants > maxPlantsInWorld)
+        return false;
+    return true;
+}
+
+void World::reportNewCreature()
+{
+    currentCreatures++;
+}
+
+void World::reportDeadCreature()
+{
+    currentCreatures--;
+}
+
+void World::reportNewPlant()
+{
+    currentPlants++;
+}
+
+void World::reportDeadPlant()
+{
+    currentPlants--;
 }

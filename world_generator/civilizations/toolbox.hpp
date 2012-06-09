@@ -46,7 +46,7 @@ public:
     std::string combineStringAndInts(std::string in1, int in2, int in3);
 
     template <class T>
-    typename std::vector<T>::iterator searchElementFromVector(std::vector<T> v, T toFind);
+    typename std::vector<T>::const_iterator searchElementFromVector(const std::vector<T>& v, const T& toFind);
 
     float** giveFloatArray2D(int sizeX, int sizeY);
     float*** giveFloatArray3D(int sizeX, int sizeY, int sizeZ);
@@ -60,11 +60,9 @@ public:
 // Performs a std::find for a vector of generic type
 // Returns an iterator pointing to the element if found, else the end of the vector
 template <class T>
-typename std::vector<T>::iterator Toolbox::searchElementFromVector(std::vector<T> v, T toFind)
+typename std::vector<T>::const_iterator Toolbox::searchElementFromVector(const std::vector<T>& v, const T& toFind)
 {
-    typename std::vector<T>::iterator iter;
-    iter = std::find(v.begin(), v.end(), toFind);
-    return iter;
+    return std::find(v.begin(), v.end(), toFind);
 }
 
 extern Toolbox tbox;

@@ -6,6 +6,7 @@ Tile::Tile(int x, int y)
 {
     coord_x = x;
     coord_y = y;
+    plantFoodValue = 100;
 }
 
 Tile::~Tile()

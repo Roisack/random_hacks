@@ -7,6 +7,10 @@ Flora::Flora(long t)
     fprintf(stderr, "New plant born\n");
     alive = true;
     birthTime = t;
+    life = 100.0f;
+    expectedLifeTime = 1000;
+    lastReproduced = t;
+    lastEaten = t;
 }
 
 Flora::~Flora()
@@ -54,7 +58,7 @@ void Flora::advanceTime(long t)
 void Flora::takeDamage(float d)
 {
     life -= d;
-    if (life <= 0)
+    if (life <= 1)
         die();
 }
 
@@ -62,6 +66,8 @@ void Flora::die()
 {
     fprintf(stderr, "Plant is dying\n");
     alive = false;
+    region->reportDeadPlantToWorld();
+    region = NULL;
 }
 
 void Flora::setCoordX(int x)
@@ -197,4 +203,19 @@ float Flora::getSpreadRate()
 float Flora::getRequiredSustenance()
 {
     return requiredSustenance;
+}
+
+void Flora::setRequiredSustenance(float r)
+{
+    requiredSustenance = r;
+}
+
+void Flora::setEatDelay(long t)
+{
+    eatDelay = t;
+}
+
+long Flora::getEatDelay()
+{
+    return eatDelay;
 }
