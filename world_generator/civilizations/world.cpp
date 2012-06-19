@@ -1,5 +1,7 @@
 #include "world.hpp"
 #include "region.hpp"
+#include <stdio.h>
+#include <iostream>
 
 World::World()
 {
@@ -54,7 +56,7 @@ void World::die()
 void World::advanceTime()
 {
     world_time++;
-    if (world_time % 100 == 0)
+    if (world_time % 10 == 0)
         report();
     std::vector<std::shared_ptr<Region> >::iterator iter;
     for (iter = regions.begin(); iter != regions.end(); iter++)
@@ -71,7 +73,8 @@ void World::report()
     fprintf(stderr, "Civilizations\tCreatures\tPlants\tpastCreatures\tpastPlants\n");
     fprintf(stderr, "%d\t\t\%d\t\t\%d\t\t\%d\t\t\%d\n", currentCivilizations, currentCreatures, currentPlants, pastCreatures, pastPlants);
     fprintf(stderr, "==========================================================\n");
-    int a = 5;
+    //std::string dummy;
+    //std::cin >> dummy;
 }
 
 void World::setTime(long t)
@@ -123,24 +126,24 @@ bool World::allowedToSpawnPlant()
     return true;
 }
 
-void World::reportNewCreature()
+void World::reportNewCreatures(int n)
 {
-    currentCreatures++;
+    currentCreatures += n;
 }
 
-void World::reportDeadCreature()
+void World::reportDeadCreatures(int n)
 {
-    currentCreatures--;
-    pastCreatures++;
+    currentCreatures -= n;
+    pastCreatures += n;
 }
 
-void World::reportNewPlant()
+void World::reportNewPlants(int n)
 {
-    currentPlants++;
+    currentPlants += n;
 }
 
-void World::reportDeadPlant()
+void World::reportDeadPlants(int n)
 {
-    currentPlants--;
-    pastPlants++;
+    currentPlants -= n;
+    pastPlants += n;
 }

@@ -67,7 +67,6 @@ void Flora::die()
 {
     fprintf(stderr, "Plant is dying\n");
     alive = false;
-    region->reportDeadPlantToWorld();
     region = NULL;
 }
 
@@ -109,6 +108,11 @@ void Flora::setType(std::string t)
 void Flora::setName(std::string n)
 {
     name = n;
+}
+
+void Flora::setLastReproduced(long t)
+{
+    lastReproduced = t;
 }
 
 void Flora::setMinTemperature(float t)
@@ -171,6 +175,11 @@ std::string Flora::getType()
     return type;
 }
 
+long Flora::getLastReproduced()
+{
+    return lastReproduced;
+}
+
 std::string Flora::getName()
 {
     return name;
@@ -216,12 +225,38 @@ void Flora::setEatDelay(long t)
     eatDelay = t;
 }
 
+void Flora::setSpreadQuantity(int n)
+{
+    spreadQuantity = n;
+}
+
+void Flora::setLife(int n)
+{
+    life = n;
+}
+
 long Flora::getEatDelay()
 {
     return eatDelay;
+}
+
+long Flora::getLastEaten()
+{
+    return lastEaten;
 }
 
 bool Flora::getAlive()
 {
     return alive;
 }
+
+int Flora::getSpreadQuantity()
+{
+    return spreadQuantity;
+}
+
+int Flora::getLife()
+{
+    return life;
+}
+

@@ -31,6 +31,7 @@ private:
     int eatDelay;
     float requiredSustenance;
     bool alive;
+    int spreadQuantity; // How many replications this plant does when spreading
     Region* region; // In which region does this plant live
 public:
     Flora(long t);
@@ -53,8 +54,11 @@ public:
     void setMinHumidity(float h);
     void setMaxHumidity(float h);
     void setSpreadRate(float r);
+    void setLastReproduced(long l);
     void setRequiredSustenance(float r);
     void setEatDelay(long t);
+    void setSpreadQuantity(int n);
+    void setLife(int n);
 
     int getCoordX();
     int getCoordY();
@@ -70,8 +74,12 @@ public:
     float getMaxHumidity();
     float getSpreadRate();
     float getRequiredSustenance();
+    long getLastEaten();
+    long getLastReproduced();
     long getEatDelay();
     bool getAlive();
+    int getSpreadQuantity();
+    int getLife();
 };
 
 #endif

@@ -37,10 +37,10 @@ public:
     bool allowedToSpawnCreature();
     bool allowedToSpawnPlant();
     void report();
-    void reportNewCreature();
-    void reportNewPlant();
-    void reportDeadCreature();
-    void reportDeadPlant();
+    void reportNewCreatures(int q);
+    void reportNewPlants(int q);
+    void reportDeadCreatures(int n);
+    void reportDeadPlants(int n);
 
     long getTime();
     void setTime(long t);
