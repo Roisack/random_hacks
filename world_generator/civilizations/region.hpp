@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <vector>
-
+#include <map>
 class Creature;
 class Flora;
 class World;
@@ -19,11 +19,23 @@ private:
     int coord_x;
     int coord_y;
     
+    float plant_food_available;
+    float plants_consume_food;
+
     Tile* regionMap[32][32];
     float temperature;  // Kelvins
     float humidity; // Percentage
-    std::vector<std::shared_ptr<Creature> > fauna; // Various animals in the area
-    std::vector<std::shared_ptr<Flora> > flora; // Various plants in the area
+    std::map<std::shared_ptr<Creature>, int> fauna; // Various animals in the area
+    std::map<std::shared_ptr<Flora>, int> flora;    // A map containing a type of a plant, and a number of them in the area
+    std::map<std::shared_ptr<Flora>, int> flora_to_spread; // A map containing a type of a plant, and a number of them that wants to spread
+   std::map<std::shared_ptr<Flora>, int> flora_to_delete;   // A map containing quantities of various plants that are dying
+   
+    
+    long lastProduction;  // When did the region last add new resources for plants
+    int productionDelay;
+
+    int numberOfPlantTypes;
+    int numberOfAnimalTypes;
 public:
     Region();
     ~Region();
@@ -34,11 +46,18 @@ public:
     float givePlantFood(Flora* f);
     float produceNewPlantFood();
     void createPlantLife();
+    void addPendingFlora();
+    void removeDeadPlants();
+
+    void queryPlants(long t);
+    void queryFauna(long t);
 
     void setWorld(World* world);
     void setActive(bool b);
-    void addFauna(std::shared_ptr<Creature> c);
-    void addFlora(std::shared_ptr<Flora> f);
+    void addFauna(std::shared_ptr<Creature>& c, int i);
+    void addFlora(std::shared_ptr<Flora>& f, int i);
+    void reportDeadPlantsToWorld(int q);
+    void reportDeadCreaturesToWorld(int q);
     void setTemperature(float t);
     void setHumidity(float h);
     void setCoordX(int x);
@@ -49,8 +68,8 @@ public:
     bool getActive();
     float getTemperature();
     float getHumidity();
-    std::vector<std::shared_ptr<Creature> > getFauna();
-    std::vector<std::shared_ptr<Flora> > getFlora();
+    std::map<std::shared_ptr<Creature>, int >* getFauna();
+    std::map<std::shared_ptr<Flora>, int >* getFlora();
 };
 
 #endif

@@ -6,6 +6,7 @@ Tile::Tile(int x, int y)
 {
     coord_x = x;
     coord_y = y;
+    plantFoodValue = 100;
 }
 
 Tile::~Tile()
@@ -37,6 +38,8 @@ float Tile::takePlantFood(float quantity)
     else
         output = quantity;
     plantFoodValue -= quantity;
+    if (quantity <= 0)
+        quantity = 0;
     return output;
 }
 

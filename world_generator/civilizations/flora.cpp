@@ -4,9 +4,12 @@
 
 Flora::Flora(long t)
 {
-    fprintf(stderr, "New plant born\n");
     alive = true;
     birthTime = t;
+    life = 100.0f;
+    expectedLifeTime = 1000;
+    lastReproduced = t;
+    lastEaten = t;
 }
 
 Flora::~Flora()
@@ -22,7 +25,7 @@ void Flora::advanceTime(long t)
     }
     if (t > birthTime + expectedLifeTime)
     {
-        takeDamage(life/2);
+        takeDamage(life);
     }
 
     if (t > lastReproduced + spreadRate)
@@ -39,14 +42,14 @@ void Flora::advanceTime(long t)
         float receivedFood = region->givePlantFood(this);
         if (receivedFood < requiredSustenance)
         {
-            takeDamage(0.01f);
+            takeDamage(5.0f);
 
             // How large % did we get?
             float percentage = receivedFood / requiredSustenance;
 
             // 100% == Next food time is as usual
             // 50% == Ask food when half of the usual time has passed
-            lastEaten -= eatDelay*percentage;
+            lastEaten += (-1*eatDelay) + (eatDelay*percentage);
         }
     }
 }
@@ -54,7 +57,9 @@ void Flora::advanceTime(long t)
 void Flora::takeDamage(float d)
 {
     life -= d;
-    if (life <= 0)
+    if (life < 50)
+        int b =5;
+    if (life <= 1)
         die();
 }
 
@@ -62,6 +67,7 @@ void Flora::die()
 {
     fprintf(stderr, "Plant is dying\n");
     alive = false;
+    region = NULL;
 }
 
 void Flora::setCoordX(int x)
@@ -102,6 +108,11 @@ void Flora::setType(std::string t)
 void Flora::setName(std::string n)
 {
     name = n;
+}
+
+void Flora::setLastReproduced(long t)
+{
+    lastReproduced = t;
 }
 
 void Flora::setMinTemperature(float t)
@@ -164,6 +175,11 @@ std::string Flora::getType()
     return type;
 }
 
+long Flora::getLastReproduced()
+{
+    return lastReproduced;
+}
+
 std::string Flora::getName()
 {
     return name;
@@ -198,3 +214,49 @@ float Flora::getRequiredSustenance()
 {
     return requiredSustenance;
 }
+
+void Flora::setRequiredSustenance(float r)
+{
+    requiredSustenance = r;
+}
+
+void Flora::setEatDelay(long t)
+{
+    eatDelay = t;
+}
+
+void Flora::setSpreadQuantity(int n)
+{
+    spreadQuantity = n;
+}
+
+void Flora::setLife(int n)
+{
+    life = n;
+}
+
+long Flora::getEatDelay()
+{
+    return eatDelay;
+}
+
+long Flora::getLastEaten()
+{
+    return lastEaten;
+}
+
+bool Flora::getAlive()
+{
+    return alive;
+}
+
+int Flora::getSpreadQuantity()
+{
+    return spreadQuantity;
+}
+
+int Flora::getLife()
+{
+    return life;
+}
+
