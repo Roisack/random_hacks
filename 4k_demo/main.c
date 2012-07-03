@@ -5,35 +5,36 @@
 
 void _start()
 {
-    doShader();
-    useShader();
 
-    int* v, x, y, w = 320, h = 240, i = 0;
+    int w = 800;
+    int h = 600;
 
-    SDL_Surface* b;
     SDL_Event e;
 
-    b = SDL_SetVideoMode(w, h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL);    
-    v = b->pixels;
+    SDL_SetVideoMode(w, h, 32, SDL_OPENGL | SDL_RESIZABLE);
+
+    createSurface(1024, 1024);
   
     do {
         SDL_PollEvent(&e);
 
-        for (y = 0; y < h; ++y)
-        { 
-            for (x = 0; x < w; ++x) 
-                v[y * w + x] = (x+i) ^ y;
-        }
-        SDL_Flip(b);
-        ++i;
-
-
-
-
+        glClearColor(0.7f, 0.0f, 0.0f, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glLoadIdentity();
+        gluPerspective(65, w/h, 0.1, 1100);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        gluLookAt(0, 0, 50, 0, 0, 0, 0, 1, 0);
+        
+        updateSurface();
+        renderSurface();
+        SDL_GL_SwapBuffers();
     } while (e.type != SDL_KEYDOWN);
 
     destroyShader();
+    destroySurface();
 
+    fprintf(stderr, "Exiting\n");
     asm ( \
       "movl $1,%eax\n" \
       "xor %ebx,%ebx\n" \

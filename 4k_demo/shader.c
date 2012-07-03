@@ -117,11 +117,15 @@ void printProgramInfoLog(GLuint obj)
 
 void destroyShader()
 {
+    fprintf(stderr, "Destroying shader\n");
     glDeleteProgram(s1_ptr->shader_handle);
     glDeleteShader(s1_ptr->vs_handle);
     glDeleteShader(s1_ptr->fs_handle);
+    fprintf(stderr, "Freeing source\n");
     free(s1_ptr->vs_source);
+    fprintf(stderr, "Freeing source\n");
     free(s1_ptr->fs_source);
+    fprintf(stderr, "Shader destroyed\n");
 }
 
 void useShader()
