@@ -1,36 +1,43 @@
 #include <GL/gl.h>
 #include <SDL/SDL.h>
+#include "shader.h"
+#include "surface.h"
 
 void _start()
 {
-  SDL_Event event;
+    doShader();
+    useShader();
 
-  SDL_SetVideoMode(640,480,0,SDL_OPENGL|SDL_FULLSCREEN);
-  SDL_ShowCursor(SDL_DISABLE);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glFrustum(-1.33,1.33,-1,1,1.5,100);
-  glMatrixMode(GL_MODELVIEW);
-  glEnable(GL_DEPTH_TEST);
-  glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+    int* v, x, y, w = 320, h = 240, i = 0;
 
-  glLoadIdentity();
-  glBegin(GL_TRIANGLES);
-  glVertex3i(1,1,-10);
-  glVertex3i(1,-1,-10);
-  glVertex3i(-1,1,-10);
-  glEnd();
-  SDL_GL_SwapBuffers();
+    SDL_Surface* b;
+    SDL_Event e;
+
+    b = SDL_SetVideoMode(w, h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL);    
+    v = b->pixels;
   
-  do
-  {
-    SDL_PollEvent(&event);
-  } while (event.type!=SDL_KEYDOWN);
-  SDL_Quit();
-  asm ( \
-  "movl $1,%eax\n" \
-  "xor %ebx,%ebx\n" \
-  "int $128\n" \
-  );
+    do {
+        SDL_PollEvent(&e);
+
+        for (y = 0; y < h; ++y)
+        { 
+            for (x = 0; x < w; ++x) 
+                v[y * w + x] = (x+i) ^ y;
+        }
+        SDL_Flip(b);
+        ++i;
+
+
+
+
+    } while (e.type != SDL_KEYDOWN);
+
+    destroyShader();
+
+    asm ( \
+      "movl $1,%eax\n" \
+      "xor %ebx,%ebx\n" \
+      "int $128\n" \
+    );
 }
 
