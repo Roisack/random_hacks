@@ -13,8 +13,9 @@ void doShader();
 char* loadSource();
 void compile();
 
+void shaderSetInt(const char* n, int i);
+void shaderSetFloat(const char* n, float f);
 void useShader();
 void unuseShader();
-
 void destroyShader();
 

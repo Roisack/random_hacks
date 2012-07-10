@@ -1,4 +1,11 @@
+varying vec2 texCoord;
+uniform float time;
+
 void main()
 {
-	gl_FragColor = vec4(0.4,0.4,0.8,1.0);
+    vec4 col;
+    col.r = sin(texCoord.s);
+    col.g = sin(texCoord.t);
+    col.b = sin(time/10.0);
+	gl_FragColor = col;
 }
