@@ -5,17 +5,24 @@ struct Shader* s1_ptr = &s1;
 
 //#define DEBUG // Prints to console
 //#define VERIFYFILE // Handle file errors
-
+//#define READFROMFILE  // If the shaders are read from an external file
 void doShader()
 {
+#ifndef READFROMFILE
+#include "coolShader.h"
+    s1_ptr->vs_source = coolShader_vs;
+    s1_ptr->fs_source = coolShader_fs;
+#else
     s1_ptr->vs_source = loadSource("coolShader.vs");
     s1_ptr->fs_source = loadSource("coolShader.fs");
+#endif
 #ifdef DEBUG
     fprintf(stderr, "%s\n**%s\n**", s1_ptr->vs_source, s1_ptr->fs_source);
 #endif
     compile();
 }
 
+#ifdef READFROMFILE
 char* loadSource(const char* filename)
 {
     FILE* filePtr;
@@ -68,6 +75,7 @@ char* loadSource(const char* filename)
 #endif
     return buffer;
 }
+#endif
 
 void compile()
 {
