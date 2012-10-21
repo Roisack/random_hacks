@@ -86,17 +86,6 @@ def prepare():
     except IOError as e:
         print(e)
 
-    output = ""
-    process = os.popen("/bin/date", "r")
-    while 1:
-        line = process.readline()
-        if not line: break
-        output += line
-    f = open("./report.html", 'a')
-    f.write("Data generated ")
-    f.write(output)
-    f.close()
-
 def upload():
     try:
         shutil.copy("./report.html", "/home/gekko/public_html/weather/index.html")
