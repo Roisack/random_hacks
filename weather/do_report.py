@@ -30,9 +30,9 @@ def write_row(data, place):
     f.write("</td><td>")
     f.write(temperature)
     f.write("</td><td>")
-    f.write(wind)
-    f.write("</td><td>")
     f.write(humidity)
+    f.write("</td><td>")
+    f.write(wind)
     f.write("</td><td>")
     f.write(conditions)
     f.write("</td></tr>")
@@ -67,15 +67,8 @@ def fetch_data(code):
         output += line
     return output
 
-def do_report(city):
-    if (city == "Turku"):
-        output = fetch_data("EFTU")
-    elif (city == "Clarksville"):
-        output = fetch_data("KCKV")
-    else:
-        print("No codes given for " + city)
-        return
-
+def do_report(city, code):
+    output = fetch_data(code)
     print("Writing data for " + city)
     write_row(output, city)
 
@@ -95,8 +88,10 @@ def upload():
         print(e)
 
 prepare()
-do_report("Turku")
-do_report("Clarksville")
+do_report("Turku", "EFTU")
+do_report("Clarksville", "KCKV")
+do_report("North Vancouver", "CYVR")
+do_report("Detroit", "KDTW")
 finish_document()
 upload()
 
