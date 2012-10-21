@@ -1,4 +1,5 @@
 import os
+import shutil
 
 def write_row(data, place):
     f = open('./report.html', 'a')
@@ -41,8 +42,19 @@ def write_row(data, place):
 def finish_document():
     print("Finishing document")
     f = open('./report.html', 'a')
-    f.write("</table></body></html>")
+    f.write("</table><br><br>")
+
+    output = ""
+    process = os.popen("/bin/date", "r")
+    while 1:
+        line = process.readline()
+        if not line: break
+        output += line
+    f.write("Data generated ")
+    f.write(output)
+    f.write("</body></html>")
     f.close()
+
 
 def fetch_data(code): 
     cmdline = "./weather.sh "
@@ -68,10 +80,34 @@ def do_report(city):
     write_row(output, city)
 
 def prepare():
-    os.popen('/bin/cp ./template.html ./report.html', "r")
+    try:
+        shutil.copy("./template.html", "./report.html")
+        print("Successfully copied template file")
+    except IOError as e:
+        print(e)
+
+    output = ""
+    process = os.popen("/bin/date", "r")
+    while 1:
+        line = process.readline()
+        if not line: break
+        output += line
+    f = open("./report.html", 'a')
+    f.write("Data generated ")
+    f.write(output)
+    f.close()
+
+def upload():
+    try:
+        shutil.copy("./report.html", "/home/gekko/public_html/weather/index.html")
+        print("Successfully uploaded the report")
+        os.chmod("/home/gekko/public_html/weather/index.html", 0775)
+    except IOError as e:
+        print(e)
 
 prepare()
 do_report("Turku")
 do_report("Clarksville")
-
 finish_document()
+upload()
+
