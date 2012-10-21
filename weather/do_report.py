@@ -25,17 +25,17 @@ def write_row(data, place):
             conditions = l
             #conditions = conditions[len("Sky conditions: ")+3:len(conditions)]
 
-    f.write("<tr><th>")
+    f.write("<tr><td>")
     f.write(city)
-    f.write("</th><th>")
+    f.write("</td><td>")
     f.write(temperature)
-    f.write("</th><th>")
+    f.write("</td><td>")
     f.write(wind)
-    f.write("</th><th>")
+    f.write("</td><td>")
     f.write(humidity)
-    f.write("</th><th>")
+    f.write("</td><td>")
     f.write(conditions)
-    f.write("</th></tr>")
+    f.write("</td></tr>")
 
     f.close()
 
