@@ -89,9 +89,13 @@ def upload():
 
 prepare()
 do_report("Turku", "EFTU")
+do_report("Kuopio", "EFTU")
 do_report("Clarksville", "KCKV")
 do_report("North Vancouver", "CYVR")
 do_report("Detroit", "KDTW")
+do_report("Miami", "KMIA")
+do_report("Quebec", "CYQB")
+do_report("Sao Paolo", "SBGR")
 finish_document()
 upload()
 
