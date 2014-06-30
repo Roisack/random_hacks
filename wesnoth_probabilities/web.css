@@ -1,0 +1,32 @@
+#input_data {
+    float: left;
+    background: grey;
+    padding: 0px 30px 0px 0px;
+    height: 400px;
+    text-align: left;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-top: 5px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    -khtml-border-radius: 20px;
+    border-radius: 20px;
+}
+
+#output_data {
+    float: left;
+    background: grey;
+    padding: 0px 30px 0px 0px;
+    height: 400px;
+    text-align: left;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-top: 5px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    -khtml-border-radius: 20px;
+    border-radius: 20px;
+}
+
+
+

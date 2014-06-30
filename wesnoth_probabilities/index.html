@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="StyleSheet" href="web.css" type="text/css" media="screen">
+<script src="jquery-1.11.1.min.js"></script>
+<title>RNG is rigged!</title>
+</head>
+<body>
+
+<script>
+
+    function isInt(value)
+    {
+        return !isNaN(value) && parseInt(Number(value)) == value;
+    }
+
+    function isFloat(value)
+    {
+        value = parseFloat(value);
+        if(isNaN(value))
+            return false;
+        return true;
+    }
+
+    function recalculate()
+    {
+
+        var count = document.getElementById('num_of_attacks').value;
+        var defence = document.getElementById('defence_percentage').value;
+
+        if (!isInt(count))
+        {
+            console.log("not int: " + count)
+            return;
+        }
+
+        if (!isFloat(defence))
+        {
+            console.log("not float: " + defence);
+            return;
+        }
+
+        if (count > 30)
+            count = 30
+
+        $("#output tbody").remove();
+        
+        for (i = 0; i < count; i++)
+        {
+            var this_chance = Math.pow(defence, i+1);
+            var percentage = 1.0 - this_chance;
+
+            $("#output").append("<tr><td>" + (i+1) + "</th><th>" + percentage + "</td></tr>");
+        }
+
+    }
+</script>
+
+<div id="input_data">
+
+    <p>Number of attacks: (integer)</p>
+    <input type="number" name="attacks" id="num_of_attacks" onKeyUP="recalculate()" value="1" />
+
+    <p>Defender cover: (0.5, 0.7...)</p>
+    <input type="text" name="defence" id="defence_percentage" onKeyUP="recalculate()" value=0.5 />
+ 
+
+</div>
+
+<div id="output_data">
+
+    <table id="output">
+        <thead>
+            <tr>
+                <th>Attack number</th>
+                <th>Chance to hit</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>
+
