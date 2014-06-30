@@ -1,12 +1,12 @@
 #input_data {
     float: left;
-    background: grey;
+    background: white;
     padding: 0px 30px 0px 0px;
     height: 400px;
-    text-align: left;
-    margin-right: 5px;
-    margin-left: 5px;
+    border: 1px solid;
+    text-align: center;
     margin-top: 5px;
+    margin-left: 5px;
     -moz-border-radius: 20px;
     -webkit-border-radius: 20px;
     -khtml-border-radius: 20px;
@@ -15,10 +15,11 @@
 
 #output_data {
     float: left;
-    background: grey;
+    background: white;
+    border: 1px solid;
     padding: 0px 30px 0px 0px;
     height: 400px;
-    text-align: left;
+    text-align: center;
     margin-right: 5px;
     margin-left: 5px;
     margin-top: 5px;
@@ -28,5 +29,21 @@
     border-radius: 20px;
 }
 
+#output {
+    margin-left: 10px;
+    margin-top: 5px;
+}
+
+#output th {
+    border: 1px solid;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#output td {
+    border: 1px solid;
+    padding-left: 5px;
+    padding-right: 5px;
+}
 
 

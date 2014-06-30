@@ -41,17 +41,21 @@
             return;
         }
 
-        if (count > 30)
-            count = 30
+        if (count > 10)
+            count = 10
 
         $("#output tbody").remove();
+
+        var offensive = 1.0 - defence;
+
         
         for (i = 0; i < count; i++)
         {
-            var this_chance = Math.pow(defence, i+1);
-            var percentage = 1.0 - this_chance;
+            var chance_to_miss_all= Math.pow(defence, i+1);
+            var chance_to_hit_all = Math.pow(offensive, i+1);
+            var chance_to_hit_once = 1.0 -  chance_to_miss_all
 
-            $("#output").append("<tr><td>" + (i+1) + "</th><th>" + percentage + "</td></tr>");
+            $("#output").append("<tr><td>" + (i+1) + "</td><td>" + chance_to_hit_once + "</td><td>" + chance_to_miss_all +"</td><td>" + chance_to_hit_all + "</td></tr>");
         }
 
     }
@@ -74,7 +78,9 @@
         <thead>
             <tr>
                 <th>Attack number</th>
-                <th>Chance to hit</th>
+                <th>Chance to hit once</th>
+                <th>Chance to miss all</th>
+                <th>Chance to hit all</th>
             </tr>
         </thead>
         <tbody>
