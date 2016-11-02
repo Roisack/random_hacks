@@ -4,40 +4,57 @@ import time
 import subprocess
 from subprocess import Popen, PIPE, STDOUT
 
-def write_row(data, place):
+class WeatherEntry:
+
+    def __init__(self, city, data, valid=True):
+        self.name = city
+        self.temperature = "No data received"
+        self.celsius = -999
+        self.wind = ""
+        self.humidity = ""
+        self.conditions = ""
+        self.is_max = False
+        self.is_min = False
+
+        self.is_valid = valid
+        if (self.is_valid == False):
+            return
+
+        lines = data.split('\n')
+
+        for l in lines:
+            if ("Temperature" in l):
+                self.temperature = l
+                try:
+                    temp_str = self.temperature[self.temperature.find("(")+1:self.temperature.find(")")]
+                    self.celsius = float(temp_str[:-1])
+                except Exception as e:
+                    print("error convertin temperature to float: " + str(e))
+            if ("Wind" in l):
+                self.wind = l
+            if ("Relative Humidity" in l):
+                self.humidity = l
+            if ("Sky conditions" in l):
+                self.conditions = l
+
+def write_row(data):
     f = open('./report.html', 'a')
-    list_of_lines = data.split('\n')
 
-    city = place
-    temperature = ""
-    wind = ""
-    humidity = ""
-    conditions = ""
-
-    for l in list_of_lines:
-        if ("Temperature" in l):
-            temperature = l
-            #temperature = temperature[len("Temperature: ")+3:len(temperature)]
-        elif ("Relative Humidity" in l):
-            humidity = l
-            #humidity = humidity[len("Relative Humidity: ")+3:len(humidity)]
-        elif ("Wind" in l):
-            wind = l
-            #wind = wind[len("Wind: ")+3:len(wind)]
-        elif ("Sky conditions" in l):
-            conditions = l
-            #conditions = conditions[len("Sky conditions: ")+3:len(conditions)]
-
-    f.write("<tr><td>")
-    f.write(city)
+    if (data.is_min):
+        f.write("<tr><td class=\"is_min\">")
+    elif (data.is_max):
+        f.write("<tr><td class=\"is_max\">")
+    else:
+        f.write("<tr><td>")
+    f.write(data.name)
     f.write("</td><td>")
-    f.write(temperature)
+    f.write(data.temperature)
     f.write("</td><td>")
-    f.write(humidity)
+    f.write(data.humidity)
     f.write("</td><td>")
-    f.write(wind)
+    f.write(data.wind)
     f.write("</td><td>")
-    f.write(conditions)
+    f.write(data.conditions)
     f.write("</td></tr>")
 
     f.close()
@@ -68,14 +85,13 @@ def finish_document():
 
 
 def fetch_data(code): 
-    cmdline = ["/usr/bin/weather", code]
+    cmdline = ["/home/gekko/weather/weather-2.2/weather", code]
 
     output = None
     try:
         output = subprocess.check_output(cmdline)
     except Exception as e:
         raise Exception("Error retrieving data")
-    print("Output is:")
     print(output)
     return output
 
@@ -94,11 +110,9 @@ def do_report(city, code):
             if (tries >= 4):
                 trying = False
                 print("Giving up after 4 tries. Writing error to output")
-                write_error(city)
-                return
-
-    write_row(output, city)
+                return WeatherEntry(city, "", False)
     time.sleep(1)
+    return WeatherEntry(city, output)
 
 def prepare():
     try:
@@ -115,24 +129,58 @@ def upload():
     except IOError as e:
         print(e)
 
+def findMinMax(results):
+    if (len(results) <= 0):
+        return results
+
+    current_min = 0
+    current_max = 0
+
+    for i in range(0, len(results)):
+        if (results[i].is_valid == False):
+            continue
+        if (results[i].celsius < results[current_min].celsius):
+            current_min = i
+        if (results[i].celsius > results[current_max].celsius):
+            current_max = i
+
+    results[current_min].is_min = True
+    results[current_max].is_max = True
+
+    print("coldest: " + results[current_min].name)
+    print("hottest: " + results[current_max].name)
+
+    return results
+
+def output_results(results):
+    for r in results:
+        write_row(r)
+
 prepare()
-do_report("Clarksville (Ranti)", "KCKV")
-do_report("Turku (Gekko)", "EFTU")
-do_report("Tampere", "EFTP")
-do_report("Kuopio", "EFKU")
-do_report("Oulu", "EFOU")
-do_report("Helsinki", "EFHK")
-do_report("Moscow (Xai)", "UUEE")
-do_report("Palanga (Rytis)", "EYPA")
-do_report("Kansas City (Dritz)", "KMCI")
-do_report("North Vancouver (AmonX)", "CYVR")
-do_report("Detroit (Oldlaptop)", "KDTW")
-do_report("Miami (Ziper)", "KMIA")
-do_report("Bagotville (Blue)", "CYBG")
-do_report("Florianopolis (Yohan)", "SBFL")
-do_report("Chennai", "VOMM")
-do_report("Dusseldorf (Vrad)", "EDDL")
-do_report("Melbourne (chaos95)", "YMML")
+
+results = []
+# ICAO codes
+results.append(do_report("Clarksville (Ranti)", "KCKV"))
+results.append(do_report("Bagotville (Blue)", "CYBG"))
+results.append(do_report("Helsinki (Gekko)", "EFHK"))
+results.append(do_report("Tampere", "EFTP"))
+results.append(do_report("Kuopio", "EFKU"))
+results.append(do_report("Moscow (Xai)", "UUEE"))
+results.append(do_report("Palanga (Rytis)", "EYPA"))
+results.append(do_report("Kansas City (Dritz)", "KMCI"))
+results.append(do_report("North Vancouver (AmonX)", "CYVR"))
+results.append(do_report("Detroit (Oldlaptop)", "KDTW"))
+results.append(do_report("Minneapolis (Captain)", "KMSP"))
+results.append(do_report("Miami (Ziper)", "KMIA"))
+results.append(do_report("Florianopolis (Yohan)", "SBFL"))
+results.append(do_report("Lisboa (SlowIdent)", "LPPT"))
+results.append(do_report("Chennai", "VOMM"))
+results.append(do_report("Dusseldorf (Vrad)", "EDDL"))
+results.append(do_report("Melbourne (chaos95)", "YMML"))
+
+results = findMinMax(results)
+output_results(results)
+
 finish_document()
 upload()
 
